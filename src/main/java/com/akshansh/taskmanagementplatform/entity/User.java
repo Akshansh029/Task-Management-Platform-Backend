@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +49,10 @@ public class User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<Project> ownedProjects = new HashSet<>();
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @ToString.Exclude
+    private List<Comment> comments = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(

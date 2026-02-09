@@ -26,6 +26,7 @@ public class Project {
     private String title;
 
     @Size(max = 1000, message = "Description can be max 1000 characters")
+    @NotBlank(message = "Description is required")
     @Column(name = "description")
     private String description;
 
@@ -46,7 +47,7 @@ public class Project {
     @ToString.Exclude
     private Set<User> members = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
     private Set<Task> tasks = new HashSet<>();
 }
