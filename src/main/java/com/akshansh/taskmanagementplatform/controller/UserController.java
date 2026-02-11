@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
+import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ValidationException;
@@ -25,6 +26,30 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUsers(){
         List<User> users = userService.getAllUsers();
         return ResponseEntity.status(HttpStatus.OK).body(users);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id){
+        if(id == null){
+            throw new ValidationException("Type of id must be Long");
+        }
+        User user = userService.getUserById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<List<UserProfileResponse>> getAllUserProfiles(){
+        List<UserProfileResponse> profiles = userService.getAllUserProfiles();
+        return ResponseEntity.status(HttpStatus.OK).body(profiles);
+    }
+
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<UserProfileResponse> getUserProfileById(@PathVariable Long id){
+        if(id == null){
+            throw new ValidationException("Type of id must be Long");
+        }
+        UserProfileResponse profile = userService.getUserProfileById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(profile);
     }
 
     @PostMapping
