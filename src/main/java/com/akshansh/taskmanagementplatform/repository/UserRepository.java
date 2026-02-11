@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAll();
 
     // Find user by id
-    User findUserById(Long id);
+    User findUserById(Long userId);
 
     // Find all UserProfiles
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse(" +
@@ -25,9 +25,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse(" +
             "u.id, u.name, u.email, u.role, SIZE(u.ownedProjects)) " +
             "FROM User u WHERE u.id = ?1")
-    UserProfileResponse findAllUserProfileById(Long id);
+    UserProfileResponse findAllUserProfileById(Long userId);
 
     // Create User
     @Override
     <S extends User> S save(S entity);
+
+    // Delete User
+    void deleteUserById(Long userId);
 }
