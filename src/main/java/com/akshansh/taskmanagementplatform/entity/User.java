@@ -1,5 +1,6 @@
 package com.akshansh.taskmanagementplatform.entity;
 
+import com.akshansh.taskmanagementplatform.exception.ValidationException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -61,4 +63,13 @@ public class User {
     )
     @ToString.Exclude
     private Set<Project> projects = new HashSet<>();
+
+    public User(String name, String email, UserRole role){
+        if(name.isEmpty() || email.isEmpty() || role == null){
+            throw new ValidationException("All fields required");
+        }
+        this.name = name;
+        this.email = email;
+        this.createdAt = LocalDateTime.now();
+    }
 }
