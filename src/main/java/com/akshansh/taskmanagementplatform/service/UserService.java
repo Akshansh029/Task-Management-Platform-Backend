@@ -42,6 +42,19 @@ public class UserService {
     }
 
     @Transactional
+    public void bulkCreateUsers(List<CreateUserRequest> data){
+        List<User> users = data.stream()
+                        .map(d -> {
+                            if (d.getName().isEmpty() || d.getEmail().isEmpty() || d.getRole() == null){
+                                throw new IllegalArgumentException("Name, email or role cannot be empty");
+                            }
+                            return new User(d.getName(), d.getEmail(), d.getRole());
+                        })
+                        .toList();
+        repo.saveAll(users);
+    }
+
+    @Transactional
     public UserProfileResponse updateUser(Long userId, UpdateUserRequest data){
         User user = repo.findById(userId).get();
 

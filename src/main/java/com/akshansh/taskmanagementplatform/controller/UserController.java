@@ -80,4 +80,14 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/bulk-create")
+    public ResponseEntity<Void> bulkUserCreation(@Valid @RequestBody List<CreateUserRequest> users){
+        try{
+            userService.bulkCreateUsers(users);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (IllegalStateException e){
+            throw new ValidationException(e.getMessage());
+        }
+    }
 }
