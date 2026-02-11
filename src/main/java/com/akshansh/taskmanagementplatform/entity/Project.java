@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,8 @@ public class Project {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "start_date")
+    @NotNull(message = "Start data cannot be null")
+    @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
     @Column(name = "end_date")
@@ -50,4 +52,12 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
     private Set<Task> tasks = new HashSet<>();
+
+
+    public Project(String title, String description, LocalDateTime startDate){
+        this.title = title;
+        this.description = description;
+        this.startDate = startDate;
+        this.createdAt = LocalDateTime.now();
+    }
 }
