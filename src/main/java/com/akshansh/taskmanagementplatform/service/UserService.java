@@ -5,6 +5,9 @@ import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,16 +22,18 @@ public class UserService {
         this.repo = repo;
     }
 
-    public List<User> getAllUsers(){
-        return repo.findAll();
+    public Page<User> getAllUsers(int pageNo, int pageSize){
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return repo.findAll(pageable);
     }
 
     public User getUserById(Long userId){
         return repo.findUserById(userId);
     }
 
-    public List<UserProfileResponse> getAllUserProfiles(){
-        return repo.findAllUserProfiles();
+    public Page<UserProfileResponse> getAllUserProfiles(int pageNo, int pageSize){
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return repo.findAllUserProfiles(pageable);
     }
 
     public UserProfileResponse getUserProfileById(Long userId){

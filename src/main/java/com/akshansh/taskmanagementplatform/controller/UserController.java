@@ -9,6 +9,7 @@ import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.ValidationException;
 import com.akshansh.taskmanagementplatform.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,11 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(){
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<Page<User>> getAllUsers(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize
+    ){
+        Page<User> users = userService.getAllUsers(pageNo, pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
@@ -43,8 +47,11 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<List<UserProfileResponse>> getAllUserProfiles(){
-        List<UserProfileResponse> profiles = userService.getAllUserProfiles();
+    public ResponseEntity<Page<UserProfileResponse>> getAllUserProfiles(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize
+    ){
+        Page<UserProfileResponse> profiles = userService.getAllUserProfiles(pageNo, pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(profiles);
     }
 
