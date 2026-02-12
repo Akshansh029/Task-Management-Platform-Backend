@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateProjectRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateProjectRequest;
 import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 import static com.akshansh.taskmanagementplatform.entity.Project.convertToDto;
 
@@ -49,6 +52,29 @@ public class ProjectService {
     }
 
     @Transactional
+    public ProjectResponse updateProject(Long projectId, UpdateProjectRequest request){
+        Project prj = projectRepo.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+
+        if (Objects.nonNull(request.getTitle()) && !"".equalsIgnoreCase(request.getTitle())) {
+            prj.setTitle(request.getTitle());
+        }
+        if (Objects.nonNull(request.getDescription()) && !"".equalsIgnoreCase(request.getDescription())) {
+            prj.setDescription(request.getDescription());
+        }
+        if (Objects.nonNull(request.getStartDate())) {
+            prj.setStartDate(request.getStartDate());
+        }
+        if (Objects.nonNull(request.getEndDate())) {
+            prj.setEndDate(request.getEndDate());
+        }
+
+        projectRepo.save(prj);
+        return convertToDto(prj);
+    }
+
+    @Transactional
     public void addMemberToProject(Long projectId, Long userId){
         User u = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -75,5 +101,10 @@ public class ProjectService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
         return projectRepo.findByIdWithMembers(projectId, pageable);
+    }
+
+    @Transactional
+    public void deleteProject(Long projectId){
+        projectRepo.deleteById(projectId);
     }
 }

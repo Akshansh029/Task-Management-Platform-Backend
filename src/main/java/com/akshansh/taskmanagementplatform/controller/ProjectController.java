@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateProjectRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateProjectRequest;
 import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
@@ -36,17 +37,22 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.OK).body(allProjects);
     }
 
+    @PutMapping("/{projectId}")
+    public ResponseEntity<ProjectResponse> updateProject(
+            @PathVariable Long projectId,
+            @RequestBody UpdateProjectRequest request)
+    {
+        ProjectResponse updated = projectService.updateProject(projectId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
     @PostMapping("/{projectId}/members/{userId}")
     public ResponseEntity<Void> addProjectMember(
             @PathVariable Long projectId,
             @PathVariable Long userId
     ){
-        try{
             projectService.addMemberToProject(projectId, userId);
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException(e.getMessage());
-        }
     }
 
     @DeleteMapping("/{projectId}/members/{userId}")
@@ -54,12 +60,8 @@ public class ProjectController {
             @PathVariable Long projectId,
             @PathVariable Long userId
     ){
-        try{
             projectService.removeMemberFromProject(projectId, userId);
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException(e.getMessage());
-        }
     }
 
     @GetMapping("/{projectId}/members")
@@ -70,5 +72,11 @@ public class ProjectController {
     ){
         Page<UserProfileResponse> members = projectService.getProjectMembers(projectId, pageNo, pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(members);
+    }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<Void> updateProject(@PathVariable Long projectId){
+        projectService.deleteProject(projectId);
+        return ResponseEntity.noContent().build();
     }
 }
