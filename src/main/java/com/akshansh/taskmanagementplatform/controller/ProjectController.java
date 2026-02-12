@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateProjectRequest;
 import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
+import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.service.ProjectService;
 import jakarta.validation.Valid;
@@ -32,5 +33,15 @@ public class ProjectController {
     ){
         Page<ProjectResponse> allProjects = projectService.getAllProjects(pageNo, pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(allProjects);
+    }
+
+    @GetMapping("/{projectId}/members")
+    public ResponseEntity<Page<UserProfileResponse>> getProjectMembers(
+            @PathVariable Long projectId,
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize
+    ){
+        Page<UserProfileResponse> members = projectService.getProjectMembers(projectId, pageNo, pageSize);
+        return ResponseEntity.status(HttpStatus.OK).body(members);
     }
 }

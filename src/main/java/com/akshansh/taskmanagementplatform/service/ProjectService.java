@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateProjectRequest;
 import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
+import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
@@ -68,5 +69,11 @@ public class ProjectService {
         p.removeMember(u);
 
         projectRepo.save(p);
+    }
+
+    public Page<UserProfileResponse> getProjectMembers(Long projectId, int pageNo, int pageSize){
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        return projectRepo.findByIdWithMembers(projectId, pageable);
     }
 }

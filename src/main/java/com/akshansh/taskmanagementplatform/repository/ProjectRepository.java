@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.repository;
 
 import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
+import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,4 +14,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             "p.id, p.title, p.description, p.startDate, p.endDate, p.createdAt, p.owner.name, p.owner.email) " +
             "FROM Project p")
     Page<ProjectResponse> findAllProjects(Pageable pageable);
+
+    Page<UserProfileResponse> findByIdWithMembers(Long projectId, Pageable pageable);
 }
