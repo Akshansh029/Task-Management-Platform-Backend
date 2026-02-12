@@ -1,5 +1,6 @@
 package com.akshansh.taskmanagementplatform.entity;
 
+import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -54,10 +55,24 @@ public class Project {
     private Set<Task> tasks = new HashSet<>();
 
 
-    public Project(String title, String description, LocalDateTime startDate){
+    public Project(String title, String description, LocalDateTime startDate, LocalDateTime endDate){
         this.title = title;
         this.description = description;
         this.startDate = startDate;
+        this.endDate = endDate;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public static ProjectResponse convertToDto(Project p){
+        return new ProjectResponse(
+                p.getId(),
+                p.getTitle(),
+                p.getDescription(),
+                p.getStartDate(),
+                p.getEndDate(),
+                p.getCreatedAt(),
+                p.owner.getName(),
+                p.owner.getEmail()
+        );
     }
 }

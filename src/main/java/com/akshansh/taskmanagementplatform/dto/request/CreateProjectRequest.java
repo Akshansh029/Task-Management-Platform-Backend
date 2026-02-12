@@ -12,15 +12,18 @@ import java.time.LocalDateTime;
 public class CreateProjectRequest {
     @NotBlank(message = "Title is required")
     @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
-    @Column(name = "title", nullable = false)
     private String title;
 
     @Size(max = 1000, message = "Description can be max 1000 characters")
     @NotBlank(message = "Description is required")
-    @Column(name = "description")
     private String description;
 
     @NotNull(message = "Start data cannot be null")
-    @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
+
+    @NotNull(message = "End data cannot be null")
+    private LocalDateTime endDate;
+
+    @NotNull(message = "Owner Id cannot be null")
+    private Long owner_id;
 }

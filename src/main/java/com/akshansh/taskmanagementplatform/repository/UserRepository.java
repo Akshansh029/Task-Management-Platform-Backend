@@ -16,9 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Override
     List<User> findAll();
 
-    // Find user by id
-    User findUserById(Long userId);
-
     // Find all UserProfiles
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse(" +
             "u.id, u.name, u.email, u.role, SIZE(u.ownedProjects)) " +

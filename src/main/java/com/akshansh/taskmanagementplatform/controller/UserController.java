@@ -26,36 +26,15 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<User>> getAllUsers(
-            @RequestParam(defaultValue = "0", required = false) int pageNo,
-            @RequestParam(defaultValue = "10", required = false) int pageSize
-    ){
-        Page<User> users = userService.getAllUsers(pageNo, pageSize);
-        return ResponseEntity.status(HttpStatus.OK).body(users);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id){
-        if(id == null){
-            throw new ValidationException("Type of id must be Long");
-        }
-        User user = userService.getUserById(id);
-        if (user == null){
-            throw new ResourceNotFoundException("User not found");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(user);
-    }
-
-    @GetMapping("/profile")
     public ResponseEntity<Page<UserProfileResponse>> getAllUserProfiles(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize
     ){
-        Page<UserProfileResponse> profiles = userService.getAllUserProfiles(pageNo, pageSize);
+        Page<UserProfileResponse> profiles = userService.getAllUsers(pageNo, pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(profiles);
     }
 
-    @GetMapping("/profile/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<UserProfileResponse> getUserProfileById(@PathVariable Long id){
         if(id == null){
             throw new ValidationException("Type of id must be Long");
@@ -68,11 +47,11 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequest request){
+    public ResponseEntity<UserProfileResponse> createUser(@Valid @RequestBody CreateUserRequest request){
         if(request.getName().isEmpty() || request.getEmail().isEmpty() || request.getRole() == null){
             throw new ValidationException("Required fields of user are not valid");
         }
-        User created = userService.createUser(request);
+        UserProfileResponse created = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 

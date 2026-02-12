@@ -1,12 +1,12 @@
 package com.akshansh.taskmanagementplatform.entity;
 
+import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.exception.ValidationException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -70,5 +70,15 @@ public class User {
         this.email = email;
         this.role = role;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public static UserProfileResponse convertToDto(User u){
+        return new UserProfileResponse(
+                u.getId(),
+                u.getName(),
+                u.getEmail(),
+                u.getRole(),
+                u.ownedProjects.size()
+        );
     }
 }

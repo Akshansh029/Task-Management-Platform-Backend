@@ -1,28 +1,49 @@
 package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateProjectRequest;
+import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
+import com.akshansh.taskmanagementplatform.entity.User;
+import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.repository.ProjectRepository;
+import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import static com.akshansh.taskmanagementplatform.entity.Project.convertToDto;
 
 @Repository
 public class ProjectService {
     private final ProjectRepository projectRepo;
+    private final UserRepository userRepo;
 
-    public ProjectService(ProjectRepository projectRepo){
+    public ProjectService(ProjectRepository projectRepo, UserRepository userRepo){
         this.projectRepo = projectRepo;
+        this.userRepo = userRepo;
     }
 
-    public Project createProject(CreateProjectRequest request){
-        Project prj = new Project(request.getTitle(), request.getDescription(), request.getStartDate());
-        return projectRepo.save(prj);
+    @Transactional
+    public ProjectResponse createProject(CreateProjectRequest request){
+        User u = userRepo.findById(request.getOwner_id())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Project prj = new Project(
+                request.getTitle(),
+                request.getDescription(),
+                request.getStartDate(),
+                request.getEndDate()
+        );
+        prj.setOwner(u);
+
+        projectRepo.save(prj);
+        return convertToDto(prj);
     }
 
-    public Page<Project> getAllProjects(int pageNo, int pageSize){
+    public Page<ProjectResponse> getAllProjects(int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return projectRepo.findAll(pageable);
+        return projectRepo.findAllProjects(pageable);
     }
 }

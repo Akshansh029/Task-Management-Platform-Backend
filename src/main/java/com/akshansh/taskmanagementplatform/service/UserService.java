@@ -6,6 +6,7 @@ import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static com.akshansh.taskmanagementplatform.entity.User.convertToDto;
 
 @Service
 public class UserService {
@@ -22,16 +26,12 @@ public class UserService {
         this.repo = repo;
     }
 
-    public Page<User> getAllUsers(int pageNo, int pageSize){
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return repo.findAll(pageable);
-    }
+//    public Page<User> getAllUsers(int pageNo, int pageSize){
+//        Pageable pageable = PageRequest.of(pageNo, pageSize);
+//        return repo.findAll(pageable);
+//    }
 
-    public User getUserById(Long userId){
-        return repo.findUserById(userId);
-    }
-
-    public Page<UserProfileResponse> getAllUserProfiles(int pageNo, int pageSize){
+    public Page<UserProfileResponse> getAllUsers(int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         return repo.findAllUserProfiles(pageable);
     }
@@ -41,9 +41,10 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(CreateUserRequest data){
+    public UserProfileResponse createUser(CreateUserRequest data){
         User user = new User(data.getName(), data.getEmail(), data.getRole());
-        return repo.save(user);
+        repo.save(user);
+        return convertToDto(user);
     }
 
     @Transactional
@@ -76,7 +77,7 @@ public class UserService {
 
         // Saves and returns the updated user entity.
         repo.save(user);
-        return repo.findAllUserProfileById(user.getId());
+        return convertToDto(user);
     }
 
     @Transactional

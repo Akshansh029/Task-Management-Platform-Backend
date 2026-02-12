@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateProjectRequest;
+import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.service.ProjectService;
 import jakarta.validation.Valid;
@@ -19,17 +20,17 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<Project> createProject(@Valid @RequestBody CreateProjectRequest request){
-        Project created = projectService.createProject(request);
+    public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody CreateProjectRequest request){
+        ProjectResponse created = projectService.createProject(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping
-    public ResponseEntity<Page<Project>> getAllProjects(
+    public ResponseEntity<Page<ProjectResponse>> getAllProjects(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize
     ){
-        Page<Project> prjs = projectService.getAllProjects(pageNo, pageSize);
-        return ResponseEntity.status(HttpStatus.OK).body(prjs);
+        Page<ProjectResponse> allProjects = projectService.getAllProjects(pageNo, pageSize);
+        return ResponseEntity.status(HttpStatus.OK).body(allProjects);
     }
 }
