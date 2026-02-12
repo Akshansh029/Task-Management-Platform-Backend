@@ -4,6 +4,7 @@ import com.akshansh.taskmanagementplatform.dto.request.CreateProjectRequest;
 import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
+import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,32 @@ public class ProjectController {
     ){
         Page<ProjectResponse> allProjects = projectService.getAllProjects(pageNo, pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(allProjects);
+    }
+
+    @PostMapping("/{projectId}/members/{userId}")
+    public ResponseEntity<Void> addProjectMember(
+            @PathVariable Long projectId,
+            @PathVariable Long userId
+    ){
+        try{
+            projectService.addMemberToProject(projectId, userId);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{projectId}/members/{userId}")
+    public ResponseEntity<Void> removeProjectMember(
+            @PathVariable Long projectId,
+            @PathVariable Long userId
+    ){
+        try{
+            projectService.removeMemberFromProject(projectId, userId);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        }
     }
 
     @GetMapping("/{projectId}/members")

@@ -49,7 +49,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void addMemberToProject(Long userId, Long projectId){
+    public void addMemberToProject(Long projectId, Long userId){
         User u = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Project p = projectRepo.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
@@ -61,7 +61,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void removeMemberFromProject(Long userId, Long projectId){
+    public void removeMemberFromProject(Long projectId, Long userId){
         User u = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Project p = projectRepo.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
