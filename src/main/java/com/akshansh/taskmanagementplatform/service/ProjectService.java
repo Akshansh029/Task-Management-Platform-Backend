@@ -46,4 +46,27 @@ public class ProjectService {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         return projectRepo.findAllProjects(pageable);
     }
+
+    @Transactional
+    public void addMemberToProject(Long userId, Long projectId){
+        User u = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Project p = projectRepo.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        // Add the member (this updates both sides)
+        p.addMember(u);
+
+        projectRepo.save(p);
+    }
+
+    @Transactional
+    public void removeMemberFromProject(Long userId, Long projectId){
+        User u = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Project p = projectRepo.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        p.removeMember(u);
+
+        projectRepo.save(p);
+    }
 }

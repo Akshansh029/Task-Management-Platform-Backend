@@ -75,4 +75,14 @@ public class Project {
                 p.owner.getEmail()
         );
     }
+
+    public void addMember(User u){
+        this.members.add(u);
+        u.getProjects().add(this);
+    }
+
+    public void removeMember(User u){
+        this.members.remove(u);
+        u.getProjects().remove(this);
+    }
 }
