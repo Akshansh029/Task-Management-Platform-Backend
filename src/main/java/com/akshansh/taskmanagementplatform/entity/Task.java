@@ -86,14 +86,15 @@ public class Task {
 
     public static TaskResponse convertToDto(Task t){
         return new TaskResponse(
-          t.getTitle(),
-          t.getDescription(),
-          t.getStatus(),
-          t.getPriority(),
-          t.getCreatedAt(),
-          t.getDueDate(),
-          t.getAssignee().getName(),
-          t.getProject().getTitle()
+            t.getId(),
+            t.getTitle(),
+            t.getDescription(),
+            t.getStatus(),
+            t.getPriority(),
+            t.getCreatedAt(),
+            t.getDueDate(),
+            t.getAssignee().getName(),
+            t.getProject().getTitle()
         );
     }
 }

@@ -9,8 +9,13 @@ import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.repository.ProjectRepository;
 import com.akshansh.taskmanagementplatform.repository.TaskRepository;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static com.akshansh.taskmanagementplatform.entity.Task.convertToDto;
 
@@ -51,5 +56,18 @@ public class TaskService {
 
         taskRepo.save(newTask);
         return convertToDto(newTask);
+    }
+
+    public Page<TaskResponse> getAllTasks(int pageNo, int pageSize){
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return taskRepo.findAllTasks(pageable);
+    }
+
+    public List<TaskResponse> getAllTasksByAssigneeId(Long assigneeId){
+        return taskRepo.findAllByAssignee_Id(assigneeId);
+    }
+
+    public List<TaskResponse> getAllTasksByProjectId(Long projectId){
+        return taskRepo.findAllByProject_Id(projectId);
     }
 }
