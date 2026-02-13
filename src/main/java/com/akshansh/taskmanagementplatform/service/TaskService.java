@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateTaskRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskRequest;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.entity.Task;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.akshansh.taskmanagementplatform.entity.Task.convertToDto;
 
@@ -69,5 +71,42 @@ public class TaskService {
 
     public List<TaskResponse> getAllTasksByProjectId(Long projectId){
         return taskRepo.findAllByProject_Id(projectId);
+    }
+
+    @Transactional
+    public TaskResponse updateTask(Long taskId, UpdateTaskRequest request){
+        Task task = taskRepo.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with ID: " + taskId + " not found"));
+
+        // Updates fields if they are not null or empty.
+        if (Objects.nonNull(request.getTitle()) && !"".equalsIgnoreCase(request.getTitle())) {
+            task.setTitle(request.getTitle());
+        }
+        if (Objects.nonNull(request.getDescription()) && !"".equalsIgnoreCase(request.getDescription())) {
+            task.setDescription(request.getDescription());
+        }
+        if (Objects.nonNull(request.getStatus())) {
+            task.setStatus(request.getStatus());
+        }
+        if (Objects.nonNull(request.getPriority())) {
+            task.setPriority(request.getPriority());
+        }
+        if (Objects.nonNull(request.getDueDate())) {
+            task.setDueDate(request.getDueDate());
+        }
+        if (Objects.nonNull(request.getAssigneeId())) {
+            User newAssignee = userRepo.findById(request.getAssigneeId())
+                            .orElseThrow(() -> new ResourceNotFoundException(
+                                    "User with ID: " + request.getAssigneeId() + " not found"));
+            task.setAssignee(newAssignee);
+        }
+
+        taskRepo.save(task);
+        return convertToDto(task);
+    }
+
+    @Transactional
+    public void deleteTask(Long taskId){
+        taskRepo.deleteById(taskId);
     }
 }
