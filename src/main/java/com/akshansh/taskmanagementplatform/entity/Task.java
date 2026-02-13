@@ -1,5 +1,6 @@
 package com.akshansh.taskmanagementplatform.entity;
 
+import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -42,7 +43,7 @@ public class Task {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "due_date", nullable = false, updatable = false)
+    @Column(name = "due_date", nullable = false)
     private LocalDateTime dueDate;
 
     @ToString.Exclude
@@ -51,12 +52,12 @@ public class Task {
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assignee_id")
+    @JoinColumn(name = "assignee_id", nullable = false)
     private User assignee;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
     @ToString.Exclude
@@ -67,4 +68,32 @@ public class Task {
             inverseJoinColumns = @JoinColumn(name = "label_id")
     )
     private Set<Label> labels = new HashSet<>();
+
+    public Task(
+        String title,
+        String description,
+        TaskStatus status,
+        TaskPriority priority,
+        LocalDateTime dueDate
+    ){
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.priority = priority;
+        this.createdAt = LocalDateTime.now();
+        this.dueDate = dueDate;
+    }
+
+    public static TaskResponse convertToDto(Task t){
+        return new TaskResponse(
+          t.getTitle(),
+          t.getDescription(),
+          t.getStatus(),
+          t.getPriority(),
+          t.getCreatedAt(),
+          t.getDueDate(),
+          t.getAssignee().getName(),
+          t.getProject().getTitle()
+        );
+    }
 }

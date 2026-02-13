@@ -42,7 +42,7 @@ public class ProjectController {
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> updateProject(
             @PathVariable Long projectId,
-            @RequestBody UpdateProjectRequest request)
+            @Valid @RequestBody UpdateProjectRequest request)
     {
         ProjectResponse updated = projectService.updateProject(projectId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
