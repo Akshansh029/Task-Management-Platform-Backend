@@ -8,10 +8,15 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfileResponse {
+public class UserProfileResponse implements Comparable<UserProfileResponse>{
     private Long id;
     private String name;
     private String email;
     private UserRole role;
     private int ownedProjectsCount;
+
+    @Override
+    public int compareTo(UserProfileResponse that){
+        return Long.compare(this.id, that.id);
+    }
 }

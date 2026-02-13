@@ -9,10 +9,7 @@ import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.repository.ProjectRepository;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,6 +118,7 @@ public class ProjectService {
         List<UserProfileResponse> members = project.getMembers()
                 .stream()
                 .map(User::convertToDto)
+                .sorted()
                 .toList();
 
         return new PageImpl<>(members, pageable, members.size());
