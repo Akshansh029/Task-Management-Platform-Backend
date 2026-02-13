@@ -1,4 +1,69 @@
 package com.akshansh.taskmanagementplatform.controller;
 
+import com.akshansh.taskmanagementplatform.dto.request.CreateTaskRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskRequest;
+import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
+import com.akshansh.taskmanagementplatform.service.TaskService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/tasks")
 public class TaskController {
+    private final TaskService taskService;
+
+    public TaskController(TaskService taskService){
+        this.taskService = taskService;
+    }
+
+    @PostMapping
+    public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request){
+        TaskResponse created = taskService.createTask(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<TaskResponse>> getAllTasks(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize
+    ){
+        Page<TaskResponse> tasks = taskService.getAllTasks(pageNo, pageSize);
+        return ResponseEntity.status(HttpStatus.OK).body(tasks);
+    }
+
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<TaskResponse>> getAllTasksByProjectId(
+            @PathVariable Long projectId
+    ){
+        List<TaskResponse> tasksByProject = taskService.getAllTasksByProjectId(projectId);
+        return ResponseEntity.status(HttpStatus.OK).body(tasksByProject);
+    }
+
+    @GetMapping("/assignee/{assigneeId}")
+    public ResponseEntity<List<TaskResponse>> getAllTasksByAssigneeId(
+            @PathVariable Long assigneeId
+    ){
+        List<TaskResponse> tasksForAssignee = taskService.getAllTasksByAssigneeId(assigneeId);
+        return ResponseEntity.status(HttpStatus.OK).body(tasksForAssignee);
+    }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<TaskResponse> updateTask(
+            @PathVariable Long taskId,
+            @Valid @RequestBody UpdateTaskRequest request)
+    {
+        TaskResponse updated = taskService.updateTask(taskId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long taskId){
+        taskService.deleteTask(taskId);
+        return ResponseEntity.noContent().build();
+    }
 }
