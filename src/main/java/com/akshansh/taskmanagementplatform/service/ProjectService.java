@@ -10,16 +10,18 @@ import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.repository.ProjectRepository;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.akshansh.taskmanagementplatform.entity.Project.convertToDto;
 
-@Repository
+@Service
 public class ProjectService {
     private final ProjectRepository projectRepo;
     private final UserRepository userRepo;
@@ -31,7 +33,7 @@ public class ProjectService {
 
     @Transactional
     public ProjectResponse createProject(CreateProjectRequest request){
-        User u = userRepo.findById(request.getOwner_id())
+        User u = userRepo.findById(request.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Project prj = new Project(
@@ -76,12 +78,25 @@ public class ProjectService {
 
     @Transactional
     public void addMemberToProject(Long projectId, Long userId){
-        User u = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User u = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with ID: " + userId + " not found"));
 
         Project p = projectRepo.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         // Add the member (this updates both sides)
         p.addMember(u);
+
+        projectRepo.save(p);
+    }
+
+    @Transactional
+    public void addMembersToProject(Long projectId, List<Long> userIds){
+        Project p = projectRepo.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        for(Long userId : userIds){
+            User u = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with ID: " + userId + " not found"));
+
+            p.addMember(u);
+        }
 
         projectRepo.save(p);
     }
@@ -100,7 +115,15 @@ public class ProjectService {
     public Page<UserProfileResponse> getProjectMembers(Long projectId, int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
-        return projectRepo.findByIdWithMembers(projectId, pageable);
+        Project project = projectRepo.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        List<UserProfileResponse> members = project.getMembers()
+                .stream()
+                .map(User::convertToDto)
+                .toList();
+
+        return new PageImpl<>(members, pageable, members.size());
     }
 
     @Transactional

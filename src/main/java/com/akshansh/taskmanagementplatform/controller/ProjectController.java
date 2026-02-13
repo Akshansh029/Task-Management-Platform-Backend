@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
@@ -62,6 +64,15 @@ public class ProjectController {
     ){
             projectService.removeMemberFromProject(projectId, userId);
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
+    @PostMapping("/{projectId}/members")
+    public ResponseEntity<Page<UserProfileResponse>> addProjectMembers(
+            @PathVariable Long projectId,
+            @RequestBody List<Long> userIds
+    ){
+        projectService.addMembersToProject(projectId, userIds);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
     @GetMapping("/{projectId}/members")
