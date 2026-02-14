@@ -1,24 +1,25 @@
 package com.akshansh.taskmanagementplatform.dto;
 
-import lombok.Getter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
-@Getter
-public class ErrorResponse {
+@Data
+public class ValidationErrorResponse {
     private LocalDateTime timestamp;
     private int status;
     private String error;
     private String message;
-    private String path;
+    private List<String> errors;
 
-    public ErrorResponse(int status, String error, String message, String path) {
+    public ValidationErrorResponse(int status, String error, String message, List<String> errors) {
         this.timestamp = LocalDateTime.now();
         this.status = status;
         this.error = error;
         this.message = message;
-        this.path = path;
+        this.errors = errors;
     }
-
 }
 

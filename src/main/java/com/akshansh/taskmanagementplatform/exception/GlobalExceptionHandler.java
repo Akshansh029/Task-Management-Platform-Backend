@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.exception;
 
 import com.akshansh.taskmanagementplatform.dto.ErrorResponse;
+import com.akshansh.taskmanagementplatform.dto.ValidationErrorResponse;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, WebRequest request) {
-        Map<String, List<String>> body = new HashMap<>();
 
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -26,9 +26,13 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        body.put("errors", errors);
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        ValidationErrorResponse error = new ValidationErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                errors
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -54,7 +58,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserNotPartOfProjectException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(UserNotPartOfProjectException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleUserNotPartOfProject(UserNotPartOfProjectException ex, WebRequest request) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 "User is not part of the given project",
@@ -62,6 +66,17 @@ public class GlobalExceptionHandler {
                 request.getDescription(false)
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotPartOfProject(ForbiddenException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                "Unauthorized action",
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)
