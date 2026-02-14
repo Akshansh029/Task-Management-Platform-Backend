@@ -51,6 +51,12 @@ public class ProjectService {
         return projectRepo.findAllProjects(pageable);
     }
 
+    public ProjectResponse getProjectById(Long projectId){
+        Project prj = projectRepo.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project with ID: " + projectId + " not found"));
+        return convertToDto(prj);
+    }
+
     @Transactional
     public ProjectResponse updateProject(Long projectId, UpdateProjectRequest request){
         Project prj = projectRepo.findById(projectId)

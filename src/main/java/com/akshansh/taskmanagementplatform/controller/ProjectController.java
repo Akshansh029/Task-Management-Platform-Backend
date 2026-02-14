@@ -39,6 +39,12 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.OK).body(allProjects);
     }
 
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ProjectResponse> updateProject(@PathVariable Long projectId){
+        ProjectResponse prjById = projectService.getProjectById(projectId);
+        return ResponseEntity.status(HttpStatus.OK).body(prjById);
+    }
+
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> updateProject(
             @PathVariable Long projectId,
