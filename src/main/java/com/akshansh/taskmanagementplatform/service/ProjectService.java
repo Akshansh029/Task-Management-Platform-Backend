@@ -40,6 +40,7 @@ public class ProjectService {
                 request.getEndDate()
         );
         prj.setOwner(u);
+        prj.addMember(u);
 
         projectRepo.save(prj);
         return convertToDto(prj);

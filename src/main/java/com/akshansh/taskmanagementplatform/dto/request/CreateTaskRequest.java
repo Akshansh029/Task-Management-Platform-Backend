@@ -31,9 +31,6 @@ public class CreateTaskRequest {
     @NotNull(message = "Task priority cannot be null")
     private TaskPriority priority;
 
-    @NotNull(message = "CreatedAt cannot be null")
-    private LocalDateTime createdAt;
-
     @NotNull(message = "Due date cannot be null")
     private LocalDateTime dueDate;
 

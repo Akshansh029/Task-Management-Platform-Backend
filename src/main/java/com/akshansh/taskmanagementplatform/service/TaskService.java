@@ -7,6 +7,7 @@ import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.entity.Task;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
+import com.akshansh.taskmanagementplatform.exception.UserNotPartOfProjectException;
 import com.akshansh.taskmanagementplatform.repository.ProjectRepository;
 import com.akshansh.taskmanagementplatform.repository.TaskRepository;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
@@ -45,6 +46,10 @@ public class TaskService {
         Project prj = projectRepo.findById(request.getProjectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Project with ID: " + request.getProjectId() + " not found"));
 
+        // Check if assignee is part of the project or not
+        if (!prj.getMembers().contains(assignee))
+            throw new UserNotPartOfProjectException("Invalid assignee ID");
+
         Task newTask = new Task(
                 request.getTitle(),
                 request.getDescription(),
@@ -53,6 +58,7 @@ public class TaskService {
                 request.getDueDate()
         );
 
+        // Set assignee and project
         newTask.setAssignee(assignee);
         newTask.setProject(prj);
 
@@ -66,10 +72,14 @@ public class TaskService {
     }
 
     public List<TaskResponse> getAllTasksByAssigneeId(Long assigneeId){
+        userRepo.findById(assigneeId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + assigneeId + " not found"));
         return taskRepo.findAllByAssignee_Id(assigneeId);
     }
 
     public List<TaskResponse> getAllTasksByProjectId(Long projectId){
+        projectRepo.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project with ID: " + projectId + " not found"));
         return taskRepo.findAllByProject_Id(projectId);
     }
 
