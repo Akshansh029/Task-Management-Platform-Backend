@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateTaskRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskRequest;
+import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.service.TaskService;
 import jakarta.validation.Valid;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping
 public class TaskController {
     private final TaskService taskService;
 
@@ -21,13 +22,13 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PostMapping
+    @PostMapping("/api/projects/tasks")
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request){
         TaskResponse created = taskService.createTask(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @GetMapping
+    @GetMapping("/api/tasks")
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize
@@ -36,7 +37,13 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.OK).body(tasks);
     }
 
-    @GetMapping("/project/{projectId}")
+    @GetMapping("/api/tasks/{taskId}")
+    public ResponseEntity<TaskByIdResponse> getTaskById(@PathVariable Long taskId){
+        TaskByIdResponse task = taskService.getTaskById(taskId);
+        return ResponseEntity.status(HttpStatus.OK).body(task);
+    }
+
+    @GetMapping("/api/projects/{projectId}/tasks")
     public ResponseEntity<List<TaskResponse>> getAllTasksByProjectId(
             @PathVariable Long projectId
     ){
@@ -44,7 +51,7 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.OK).body(tasksByProject);
     }
 
-    @GetMapping("/assignee/{assigneeId}")
+    @GetMapping("/api/assignee/{assigneeId}/tasks")
     public ResponseEntity<List<TaskResponse>> getAllTasksByAssigneeId(
             @PathVariable Long assigneeId
     ){
@@ -52,7 +59,7 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.OK).body(tasksForAssignee);
     }
 
-    @PutMapping("/{taskId}")
+    @PutMapping("/api/tasks/{taskId}")
     public ResponseEntity<TaskResponse> updateTask(
             @PathVariable Long taskId,
             @Valid @RequestBody UpdateTaskRequest request)
@@ -61,7 +68,7 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
-    @DeleteMapping("/{taskId}")
+    @DeleteMapping("/api/tasks/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId){
         taskService.deleteTask(taskId);
         return ResponseEntity.noContent().build();

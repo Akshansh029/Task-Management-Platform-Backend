@@ -1,5 +1,6 @@
 package com.akshansh.taskmanagementplatform.entity;
 
+import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -95,6 +96,22 @@ public class Task {
             t.getDueDate(),
             t.getAssignee().getName(),
             t.getProject().getTitle()
+        );
+    }
+
+    public static TaskByIdResponse convertToTaskByIdDto(Task t){
+        return new TaskByIdResponse(
+            t.getId(),
+            t.getTitle(),
+            t.getDescription(),
+            t.getStatus(),
+            t.getPriority(),
+            t.getCreatedAt(),
+            t.getDueDate(),
+            t.getAssignee().getName(),
+            t.getProject().getTitle(),
+            t.getComments(),
+            t.getLabels()
         );
     }
 }

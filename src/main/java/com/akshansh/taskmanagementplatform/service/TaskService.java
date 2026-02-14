@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateTaskRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskRequest;
+import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.entity.Task;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.akshansh.taskmanagementplatform.entity.Task.convertToDto;
+import static com.akshansh.taskmanagementplatform.entity.Task.convertToTaskByIdDto;
 
 @Service
 public class TaskService {
@@ -71,6 +73,12 @@ public class TaskService {
         return taskRepo.findAllTasks(pageable);
     }
 
+    public TaskByIdResponse getTaskById(Long taskId){
+        Task task = taskRepo.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with ID: " + taskId + " not found"));
+        return convertToTaskByIdDto(task);
+    }
+
     public List<TaskResponse> getAllTasksByAssigneeId(Long assigneeId){
         userRepo.findById(assigneeId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + assigneeId + " not found"));
@@ -95,20 +103,11 @@ public class TaskService {
         if (Objects.nonNull(request.getDescription()) && !"".equalsIgnoreCase(request.getDescription())) {
             task.setDescription(request.getDescription());
         }
-        if (Objects.nonNull(request.getStatus())) {
-            task.setStatus(request.getStatus());
-        }
         if (Objects.nonNull(request.getPriority())) {
             task.setPriority(request.getPriority());
         }
         if (Objects.nonNull(request.getDueDate())) {
             task.setDueDate(request.getDueDate());
-        }
-        if (Objects.nonNull(request.getAssigneeId())) {
-            User newAssignee = userRepo.findById(request.getAssigneeId())
-                            .orElseThrow(() -> new ResourceNotFoundException(
-                                    "User with ID: " + request.getAssigneeId() + " not found"));
-            task.setAssignee(newAssignee);
         }
 
         taskRepo.save(task);

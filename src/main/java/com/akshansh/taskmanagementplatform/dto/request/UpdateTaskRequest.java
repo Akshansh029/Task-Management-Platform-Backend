@@ -21,11 +21,7 @@ public class UpdateTaskRequest {
     @Size(max = 500, message = "Description can be max 500 characters")
     private String description;
 
-    private TaskStatus status;
-
     private TaskPriority priority;
 
     private LocalDateTime dueDate;
-
-    private Long assigneeId;
 }
