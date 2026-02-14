@@ -52,9 +52,6 @@ public class UserService {
     public void bulkCreateUsers(List<CreateUserRequest> data){
         List<User> users = data.stream()
                         .map(d -> {
-                            if (d.getName().isEmpty() || d.getEmail().isEmpty() || d.getRole() == null){
-                                throw new IllegalArgumentException("Name, email or role cannot be empty");
-                            }
                             return new User(d.getName(), d.getEmail(), d.getRole());
                         })
                         .toList();

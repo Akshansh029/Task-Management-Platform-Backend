@@ -5,6 +5,7 @@ import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
+import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.ValidationException;
 import com.akshansh.taskmanagementplatform.service.UserService;
@@ -47,9 +48,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserProfileResponse> createUser(@Valid @RequestBody CreateUserRequest request){
-        if(request.getName().isEmpty() || request.getEmail().isEmpty() || request.getRole() == null){
-            throw new ValidationException("Required fields of user are not valid");
+    public ResponseEntity<UserProfileResponse> createUser(
+            @RequestHeader("X-User-ID") Long userId,
+            @Valid @RequestBody CreateUserRequest request
+    ){
+        UserProfileResponse user = userService.getUserProfileById(userId);
+        if(user.getRole() == UserRole.ADMIN){
+            throw new ForbiddenException("Only admins can create users");
         }
         UserProfileResponse created = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -62,18 +67,28 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+    public ResponseEntity<Void> deleteUser(
+            @RequestHeader("X-User-ID") Long userId,
+            @PathVariable Long id
+    ){
+        UserProfileResponse user = userService.getUserProfileById(userId);
+        if(user.getRole() == UserRole.ADMIN){
+            throw new ForbiddenException("Only admins can delete users");
+        }
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/bulk-create")
-    public ResponseEntity<Void> bulkUserCreation(@Valid @RequestBody List<CreateUserRequest> users){
-        try{
-            userService.bulkCreateUsers(users);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (IllegalStateException e){
-            throw new ValidationException(e.getMessage());
+    public ResponseEntity<Void> bulkUserCreation(
+            @RequestHeader("X-User-ID") Long userId,
+            @Valid @RequestBody List<CreateUserRequest> users
+    ){
+        UserProfileResponse user = userService.getUserProfileById(userId);
+        if(user.getRole() == UserRole.ADMIN){
+            throw new ForbiddenException("Only admins can create users");
         }
+        userService.bulkCreateUsers(users);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
