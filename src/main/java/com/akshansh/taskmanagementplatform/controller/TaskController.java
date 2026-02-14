@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateTaskRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskStatusRequest;
 import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.service.TaskService;
@@ -66,6 +67,24 @@ public class TaskController {
     {
         TaskResponse updated = taskService.updateTask(taskId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
+    @PatchMapping("/api/tasks/{taskId}/assign/{userId}")
+    public ResponseEntity<Void> assignTaskToUser(
+            @PathVariable Long taskId,
+            @PathVariable Long userId
+    ){
+        taskService.assignTaskToUser(taskId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/api/tasks/{taskId}/status")
+    public ResponseEntity<Void> updateTaskStatus(
+            @PathVariable Long taskId,
+            @Valid @RequestBody UpdateTaskStatusRequest request
+    ){
+        taskService.updateTaskStatus(taskId, request);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/api/tasks/{taskId}")

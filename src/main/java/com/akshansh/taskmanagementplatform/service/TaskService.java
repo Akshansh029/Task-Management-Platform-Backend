@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateTaskRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskStatusRequest;
 import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
@@ -12,6 +13,7 @@ import com.akshansh.taskmanagementplatform.exception.UserNotPartOfProjectExcepti
 import com.akshansh.taskmanagementplatform.repository.ProjectRepository;
 import com.akshansh.taskmanagementplatform.repository.TaskRepository;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,15 +44,12 @@ public class TaskService {
 
     @Transactional
     public TaskResponse createTask(CreateTaskRequest request){
-        User assignee = userRepo.findById(request.getAssigneeId())
-                .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + request.getAssigneeId() + " not found"));
-
         Project prj = projectRepo.findById(request.getProjectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Project with ID: " + request.getProjectId() + " not found"));
 
         // Check if assignee is part of the project or not
-        if (!prj.getMembers().contains(assignee))
-            throw new UserNotPartOfProjectException("Invalid assignee ID");
+//        if (!prj.getMembers().contains(assignee))
+//            throw new UserNotPartOfProjectException("Invalid assignee ID");
 
         Task newTask = new Task(
                 request.getTitle(),
@@ -60,8 +59,7 @@ public class TaskService {
                 request.getDueDate()
         );
 
-        // Set assignee and project
-        newTask.setAssignee(assignee);
+        // Set project
         newTask.setProject(prj);
 
         taskRepo.save(newTask);
@@ -115,7 +113,29 @@ public class TaskService {
     }
 
     @Transactional
+    public void assignTaskToUser(Long taskId, Long userId) {
+        User assignee = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + userId + " not found"));
+
+        Task task = taskRepo.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with ID: " + taskId + " not found"));
+
+        task.setAssignee(assignee);
+        taskRepo.save(task);
+    }
+
+    @Transactional
+    public void updateTaskStatus(Long taskId, UpdateTaskStatusRequest request) {
+        Task task = taskRepo.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with ID: " + taskId + " not found"));
+
+        task.setStatus(request.getStatus());
+        taskRepo.save(task);
+    }
+
+    @Transactional
     public void deleteTask(Long taskId){
         taskRepo.deleteById(taskId);
     }
+
 }

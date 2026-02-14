@@ -34,9 +34,6 @@ public class CreateTaskRequest {
     @NotNull(message = "Due date cannot be null")
     private LocalDateTime dueDate;
 
-    @NotNull(message = "Assignee Id cannot be null")
-    private Long assigneeId;
-
     @NotNull(message = "Project Id cannot be null")
     private Long projectId;
 }

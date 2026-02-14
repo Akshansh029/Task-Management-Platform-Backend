@@ -24,4 +24,6 @@ public class UpdateTaskRequest {
     private TaskPriority priority;
 
     private LocalDateTime dueDate;
+
+    private Long assigneeId;
 }
