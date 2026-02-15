@@ -30,7 +30,7 @@ public class CommentController {
     }
 
     @GetMapping("/api/tasks/{taskId}/comments")
-    public ResponseEntity<List<CommentResponse>> createComment(
+    public ResponseEntity<List<CommentResponse>> getAllComments(
             @PathVariable Long taskId
     ){
         List<CommentResponse> comments = commentService.getAllComments(taskId);
@@ -47,8 +47,11 @@ public class CommentController {
     }
 
     @DeleteMapping("/api/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId){
-        commentService.deleteComment(commentId);
+    public ResponseEntity<Void> deleteComment(
+            @RequestHeader Long userId,
+            @PathVariable Long commentId
+    ){
+        commentService.deleteComment(userId, commentId);
         return ResponseEntity.noContent().build();
     }
 }

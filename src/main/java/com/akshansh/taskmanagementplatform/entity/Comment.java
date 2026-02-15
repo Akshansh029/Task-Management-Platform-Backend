@@ -3,16 +3,14 @@ package com.akshansh.taskmanagementplatform.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
-@Getter @Setter @NoArgsConstructor @ToString
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@ToString
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,4 +33,11 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
     private Task task;
+
+    public Comment(String content, User author, Task task){
+        this.content = content;
+        this.author = author;
+        this.createdAt = LocalDateTime.now();
+        this.task = task;
+    }
 }

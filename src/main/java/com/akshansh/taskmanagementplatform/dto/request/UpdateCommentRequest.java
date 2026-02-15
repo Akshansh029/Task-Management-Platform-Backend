@@ -15,4 +15,7 @@ public class UpdateCommentRequest {
     @NotBlank(message = "Comment content is required")
     @Size(min = 3, max = 1000, message = "Content must be between 3 and 1000 characters")
     private String content;
+
+    @NotNull(message = "User ID is required")
+    private Long userId;
 }

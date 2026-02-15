@@ -16,4 +16,7 @@ public class CreateCommentRequest {
 
     @NotNull(message = "Author ID is required")
     private Long authorId;
+
+    @NotNull(message = "Project ID is required")
+    private Long projectId;
 }
