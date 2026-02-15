@@ -1,4 +1,9 @@
 package com.akshansh.taskmanagementplatform.repository;
 
-public interface LabelRepository {
+import com.akshansh.taskmanagementplatform.entity.Label;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface LabelRepository extends JpaRepository<Label, Long> {
 }

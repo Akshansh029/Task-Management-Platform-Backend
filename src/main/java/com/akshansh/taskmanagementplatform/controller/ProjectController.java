@@ -72,7 +72,7 @@ public class ProjectController {
             @PathVariable Long memberId
     ){
             projectService.addMemberToProject(userId, projectId, memberId);
-            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+            return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{projectId}/members/{memberId}")
@@ -82,7 +82,7 @@ public class ProjectController {
             @PathVariable Long memberId
     ){
             projectService.removeMemberFromProject(userId, projectId, memberId);
-            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+            return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{projectId}/members")
@@ -92,7 +92,7 @@ public class ProjectController {
             @RequestBody List<Long> memberIds
     ){
         projectService.addMembersToProject(userId, projectId, memberIds);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/{projectId}/members")

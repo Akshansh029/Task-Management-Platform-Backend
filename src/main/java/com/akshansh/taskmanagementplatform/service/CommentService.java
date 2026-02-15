@@ -12,6 +12,8 @@ import com.akshansh.taskmanagementplatform.repository.TaskRepository;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 import static com.akshansh.taskmanagementplatform.dto.response.CommentResponse.convertToDto;
@@ -43,6 +45,7 @@ public class CommentService {
         return user.getRole() == UserRole.ADMIN;
     }
 
+    @Transactional
     public CommentResponse createComment(Long taskId, CreateCommentRequest request) {
         Task task = taskRepo.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task ID: " + taskId + " not found"));
@@ -72,6 +75,7 @@ public class CommentService {
         return task.getComments().stream().map(CommentResponse::convertToDto).toList();
     }
 
+    @Transactional
     public CommentResponse updateComment(Long commentId, UpdateCommentRequest request) {
         Comment comment = commentRepo.findById(commentId)
                 .orElseThrow(
@@ -81,7 +85,7 @@ public class CommentService {
                 .orElseThrow(
                         () -> new ResourceNotFoundException("User with ID: " + request.getUserId() + " not found"));
 
-        // Check if user is author
+        // Check if user and author are same
         if(!comment.getAuthor().equals(user))
             throw new ForbiddenException("Only comment author can edit comment");
 
@@ -90,6 +94,7 @@ public class CommentService {
         return convertToDto(comment);
     }
 
+    @Transactional
     public void deleteComment(Long userId, Long commentId) {
         Comment comment = commentRepo.findById(commentId)
                 .orElseThrow(
