@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -22,8 +23,8 @@ public class ProjectDetailsResponse {
     private LocalDateTime createdAt;
     private String ownerName;
     private String ownerEmail;
-    private Set<Task> tasks;
-    private Set<User> members;
+    private Set<TaskResponse> tasks;
+    private Set<UserProfileResponse> members;
 
     public static ProjectDetailsResponse convertToDetailedDto(Project prj){
         return new ProjectDetailsResponse(
@@ -35,8 +36,8 @@ public class ProjectDetailsResponse {
                 prj.getCreatedAt(),
                 prj.getOwner().getName(),
                 prj.getOwner().getEmail(),
-                prj.getTasks(),
-                prj.getMembers()
+                prj.getTasks().stream().map(TaskResponse::convertToDto).collect(Collectors.toSet()),
+                prj.getMembers().stream().map(User::convertToDto).collect(Collectors.toSet())
         );
     }
 }

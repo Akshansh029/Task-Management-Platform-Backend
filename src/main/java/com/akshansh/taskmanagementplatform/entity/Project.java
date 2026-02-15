@@ -67,12 +67,10 @@ public class Project {
         return new ProjectResponse(
                 p.getId(),
                 p.getTitle(),
-                p.getDescription(),
                 p.getStartDate(),
                 p.getEndDate(),
                 p.getCreatedAt(),
-                p.owner.getName(),
-                p.owner.getEmail()
+                p.owner.getName()
         );
     }
 

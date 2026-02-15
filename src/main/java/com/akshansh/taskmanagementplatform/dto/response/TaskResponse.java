@@ -1,5 +1,6 @@
 package com.akshansh.taskmanagementplatform.dto.response;
 
+import com.akshansh.taskmanagementplatform.entity.Task;
 import com.akshansh.taskmanagementplatform.entity.TaskPriority;
 import com.akshansh.taskmanagementplatform.entity.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
@@ -31,4 +32,18 @@ public class TaskResponse {
     private String assigneeName;
 
     private String projectTitle;
+
+    public static TaskResponse convertToDto(Task t){
+        return new TaskResponse(
+                t.getId(),
+                t.getTitle(),
+                t.getDescription(),
+                t.getStatus(),
+                t.getPriority(),
+                t.getCreatedAt(),
+                t.getDueDate(),
+                t.getAssignee().getName(),
+                t.getProject().getTitle()
+        );
+    }
 }

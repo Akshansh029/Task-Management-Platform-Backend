@@ -72,7 +72,7 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    public static   UserProfileResponse convertToDto(User u){
+    public static UserProfileResponse convertToDto(User u){
         return new UserProfileResponse(
                 u.getId(),
                 u.getName(),

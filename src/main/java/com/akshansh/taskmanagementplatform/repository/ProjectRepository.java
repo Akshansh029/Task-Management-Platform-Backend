@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     // Find all Projects
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.ProjectResponse(" +
-            "p.id, p.title, p.description, p.startDate, p.endDate, p.createdAt, p.owner.name, p.owner.email) " +
+            "p.id, p.title, p.startDate, p.endDate, p.createdAt, p.owner.name) " +
             "FROM Project p")
     Page<ProjectResponse> findAllProjects(Pageable pageable);
 }
