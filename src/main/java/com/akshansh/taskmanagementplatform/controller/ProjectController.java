@@ -5,8 +5,11 @@ import com.akshansh.taskmanagementplatform.dto.request.UpdateProjectRequest;
 import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
+import com.akshansh.taskmanagementplatform.entity.UserRole;
+import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.service.ProjectService;
+import com.akshansh.taskmanagementplatform.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -19,9 +22,11 @@ import java.util.List;
 @RequestMapping("/api/projects")
 public class ProjectController {
     private final ProjectService projectService;
+    private final UserService userService;
 
-    public ProjectController(ProjectService projectService){
+    public ProjectController(ProjectService projectService, UserService userService){
         this.projectService = projectService;
+        this.userService = userService;
     }
 
     @PostMapping
@@ -47,37 +52,41 @@ public class ProjectController {
 
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> updateProject(
+            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId,
             @Valid @RequestBody UpdateProjectRequest request)
     {
-        ProjectResponse updated = projectService.updateProject(projectId, request);
+        ProjectResponse updated = projectService.updateProject(userId, projectId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
-    @PostMapping("/{projectId}/members/{userId}")
+    @PostMapping("/{projectId}/members/{memberId}")
     public ResponseEntity<Void> addProjectMember(
+            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId,
-            @PathVariable Long userId
+            @PathVariable Long memberId
     ){
-            projectService.addMemberToProject(projectId, userId);
+            projectService.addMemberToProject(userId, projectId, memberId);
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    @DeleteMapping("/{projectId}/members/{userId}")
+    @DeleteMapping("/{projectId}/members/{memberId}")
     public ResponseEntity<Void> removeProjectMember(
+            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId,
-            @PathVariable Long userId
+            @PathVariable Long memberId
     ){
-            projectService.removeMemberFromProject(projectId, userId);
+            projectService.removeMemberFromProject(userId, projectId, memberId);
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
     @PostMapping("/{projectId}/members")
     public ResponseEntity<Page<UserProfileResponse>> addProjectMembers(
+            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId,
-            @RequestBody List<Long> userIds
+            @RequestBody List<Long> memberIds
     ){
-        projectService.addMembersToProject(projectId, userIds);
+        projectService.addMembersToProject(userId, projectId, memberIds);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
@@ -92,8 +101,10 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<Void> deleteProject(@PathVariable Long projectId){
-        projectService.deleteProject(projectId);
+    public ResponseEntity<Void> deleteProject(
+            @RequestHeader("X-User-ID") Long userId,
+            @PathVariable Long projectId){
+        projectService.deleteProject(userId, projectId);
         return ResponseEntity.noContent().build();
     }
 }

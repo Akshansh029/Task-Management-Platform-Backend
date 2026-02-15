@@ -4,6 +4,8 @@ import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
+import com.akshansh.taskmanagementplatform.entity.UserRole;
+import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -21,31 +23,37 @@ import static com.akshansh.taskmanagementplatform.entity.User.convertToDto;
 
 @Service
 public class UserService {
-    private final UserRepository repo;
+    private final UserRepository userRepo;
 
-    public UserService(UserRepository repo){
-        this.repo = repo;
+    public UserService(UserRepository userRepo){
+        this.userRepo = userRepo;
     }
 
 //    public Page<User> getAllUsers(int pageNo, int pageSize){
 //        Pageable pageable = PageRequest.of(pageNo, pageSize);
-//        return repo.findAll(pageable);
+//        return userRepo.findAll(pageable);
 //    }
 
     public Page<UserProfileResponse> getAllUsers(int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return repo.findAllUserProfiles(pageable);
+        return userRepo.findAllUserProfiles(pageable);
     }
 
     public UserProfileResponse getUserProfileById(Long userId){
-        return repo.findAllUserProfileById(userId);
+        return userRepo.findAllUserProfileById(userId);
     }
 
     @Transactional
-    public UserProfileResponse createUser(CreateUserRequest data){
-        User user = new User(data.getName(), data.getEmail(), data.getRole());
-        repo.save(user);
-        return convertToDto(user);
+    public UserProfileResponse createUser(Long userId, CreateUserRequest data){
+        UserProfileResponse user = userRepo.findAllUserProfileById(userId);
+
+        if(user != null && user.getRole() == UserRole.ADMIN){
+            User newUser = new User(data.getName(), data.getEmail(), data.getRole());
+            userRepo.save(newUser);
+            return convertToDto(newUser);
+        } else {
+            throw new ForbiddenException("Only admins can create users");
+        }
     }
 
     @Transactional
@@ -55,12 +63,12 @@ public class UserService {
                             return new User(d.getName(), d.getEmail(), d.getRole());
                         })
                         .toList();
-        repo.saveAll(users);
+        userRepo.saveAll(users);
     }
 
     @Transactional
     public UserProfileResponse updateUser(Long userId, UpdateUserRequest data){
-        User user = repo.findById(userId)
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // Updates fields if they are not null or empty.
@@ -75,12 +83,18 @@ public class UserService {
         }
 
         // Saves and returns the updated user entity.
-        repo.save(user);
+        userRepo.save(user);
         return convertToDto(user);
     }
 
     @Transactional
-    public void deleteUser(Long userId){
-        repo.deleteById(userId);
+    public void deleteUser(Long userId, Long id){
+        UserProfileResponse user = userRepo.findAllUserProfileById(userId);
+
+        if(user != null && user.getRole() == UserRole.ADMIN){
+            userRepo.deleteById(id);
+        } else {
+            throw new ForbiddenException("Only admins can delete users");
+        }
     }
 }

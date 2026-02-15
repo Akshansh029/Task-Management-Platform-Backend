@@ -52,11 +52,7 @@ public class UserController {
             @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateUserRequest request
     ){
-        UserProfileResponse user = userService.getUserProfileById(userId);
-        if(user == null || user.getRole() != UserRole.ADMIN){
-            throw new ForbiddenException("Only admins can create users");
-        }
-        UserProfileResponse created = userService.createUser(request);
+        UserProfileResponse created = userService.createUser(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -71,11 +67,7 @@ public class UserController {
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id
     ){
-        UserProfileResponse user = userService.getUserProfileById(userId);
-        if(user == null || user.getRole() != UserRole.ADMIN){
-            throw new ForbiddenException("Only admins can delete users");
-        }
-        userService.deleteUser(id);
+        userService.deleteUser(userId, id);
         return ResponseEntity.noContent().build();
     }
 
