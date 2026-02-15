@@ -85,20 +85,6 @@ public class Task {
         this.dueDate = dueDate;
     }
 
-    public static TaskResponse convertToDto(Task t){
-        return new TaskResponse(
-            t.getId(),
-            t.getTitle(),
-            t.getDescription(),
-            t.getStatus(),
-            t.getPriority(),
-            t.getCreatedAt(),
-            t.getDueDate(),
-            t.getAssignee().getName(),
-            t.getProject().getTitle()
-        );
-    }
-
     public static TaskByIdResponse convertToTaskByIdDto(Task t){
         return new TaskByIdResponse(
             t.getId(),

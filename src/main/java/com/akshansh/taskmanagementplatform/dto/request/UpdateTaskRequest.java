@@ -25,5 +25,5 @@ public class UpdateTaskRequest {
 
     private LocalDateTime dueDate;
 
-    private Long assigneeId;
+    private Long projectId;
 }
