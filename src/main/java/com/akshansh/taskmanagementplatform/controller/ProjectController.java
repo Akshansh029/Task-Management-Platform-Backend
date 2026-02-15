@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateProjectRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateProjectRequest;
+import com.akshansh.taskmanagementplatform.dto.response.ProjectDetailsResponse;
 import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
@@ -22,16 +23,17 @@ import java.util.List;
 @RequestMapping("/api/projects")
 public class ProjectController {
     private final ProjectService projectService;
-    private final UserService userService;
 
-    public ProjectController(ProjectService projectService, UserService userService){
+    public ProjectController(ProjectService projectService){
         this.projectService = projectService;
-        this.userService = userService;
     }
 
     @PostMapping
-    public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody CreateProjectRequest request){
-        ProjectResponse created = projectService.createProject(request);
+    public ResponseEntity<ProjectResponse> createProject(
+            @RequestHeader("X-User-ID") Long userId,
+            @Valid @RequestBody CreateProjectRequest request
+    ){
+        ProjectResponse created = projectService.createProject(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -45,8 +47,11 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}")
-    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long projectId){
-        ProjectResponse prjById = projectService.getProjectById(projectId);
+    public ResponseEntity<ProjectDetailsResponse> getProjectById(
+            @RequestHeader("X-User-ID") Long userId,
+            @PathVariable Long projectId
+    ){
+        ProjectDetailsResponse prjById = projectService.getProjectById(userId, projectId);
         return ResponseEntity.status(HttpStatus.OK).body(prjById);
     }
 

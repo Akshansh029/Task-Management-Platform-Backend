@@ -12,10 +12,8 @@ import java.time.LocalDateTime;
 public class ProjectResponse {
     private Long id;
     private String title;
-    private String description;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime createdAt;
     private String ownerName;
-    private String ownerEmail;
 }
