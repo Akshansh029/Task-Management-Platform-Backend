@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRoleRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
@@ -29,10 +30,10 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-//    public Page<User> getAllUsers(int pageNo, int pageSize){
-//        Pageable pageable = PageRequest.of(pageNo, pageSize);
-//        return userRepo.findAll(pageable);
-//    }
+    public boolean isAdmin(Long userId){
+        UserProfileResponse user = userRepo.findAllUserProfileById(userId);
+        return user != null && user.getRole() == UserRole.ADMIN;
+    }
 
     public Page<UserProfileResponse> getAllUsers(int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
@@ -45,15 +46,12 @@ public class UserService {
 
     @Transactional
     public UserProfileResponse createUser(Long userId, CreateUserRequest data){
-        UserProfileResponse user = userRepo.findAllUserProfileById(userId);
-
-        if(user != null && user.getRole() == UserRole.ADMIN){
-            User newUser = new User(data.getName(), data.getEmail(), data.getRole());
-            userRepo.save(newUser);
-            return convertToDto(newUser);
-        } else {
+        if(!isAdmin(userId))
             throw new ForbiddenException("Only admins can create users");
-        }
+
+        User newUser = new User(data.getName(), data.getEmail(), data.getRole());
+        userRepo.save(newUser);
+        return convertToDto(newUser);
     }
 
     @Transactional
@@ -67,8 +65,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfileResponse updateUser(Long userId, UpdateUserRequest data){
-        User user = userRepo.findById(userId)
+    public UserProfileResponse updateUser(Long userId, Long id, UpdateUserRequest data){
+        if (!isAdmin(userId) && !userId.equals(id)){
+            throw new ForbiddenException("Only admins and users can update their profile");
+        }
+
+        User user = userRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // Updates fields if they are not null or empty.
@@ -78,9 +80,6 @@ public class UserService {
         if (Objects.nonNull(data.getEmail()) && !"".equalsIgnoreCase(data.getEmail())) {
             user.setEmail(data.getEmail());
         }
-        if (Objects.nonNull(data.getRole())) {
-            user.setRole(data.getRole());
-        }
 
         // Saves and returns the updated user entity.
         userRepo.save(user);
@@ -88,13 +87,23 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId, Long id){
-        UserProfileResponse user = userRepo.findAllUserProfileById(userId);
+    public UserProfileResponse updateUserRole(Long userId, Long id, UpdateUserRoleRequest request){
+        if(!isAdmin(userId))
+            throw new ForbiddenException("Only admins can update user role");
 
-        if(user != null && user.getRole() == UserRole.ADMIN){
-            userRepo.deleteById(id);
-        } else {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + id + " not found"));
+
+        user.setRole(request.getRole());
+        userRepo.save(user);
+        return convertToDto(user);
+    }
+
+    @Transactional
+    public void deleteUser(Long userId, Long id){
+        if(!isAdmin(userId))
             throw new ForbiddenException("Only admins can delete users");
-        }
+
+        userRepo.deleteById(id);
     }
 }

@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRoleRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
@@ -57,9 +58,23 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserProfileResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request){
-        UserProfileResponse updated = userService.updateUser(id, request);
+    public ResponseEntity<UserProfileResponse> updateUser(
+            @RequestHeader("X-User-ID") Long userId,
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserRequest request
+    ){
+        UserProfileResponse updated = userService.updateUser(userId, id, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserProfileResponse> updateUserRole(
+            @RequestHeader("X-User-ID") Long userId,
+            @PathVariable Long id,
+            @RequestBody UpdateUserRoleRequest request
+    ){
+        UserProfileResponse updatedRole = userService.updateUserRole(userId, id, request);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedRole);
     }
 
     @DeleteMapping("/{id}")

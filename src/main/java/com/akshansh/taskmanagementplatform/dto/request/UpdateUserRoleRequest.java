@@ -1,5 +1,6 @@
 package com.akshansh.taskmanagementplatform.dto.request;
 
+import com.akshansh.taskmanagementplatform.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateUserRequest {
-    private String name;
-    private String email;
+public class UpdateUserRoleRequest {
+    private UserRole role;
 }
