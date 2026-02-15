@@ -19,7 +19,7 @@ public class Comment {
     private Long id;
 
     @NotBlank(message = "Content is required")
-    @Size(min = 3, max = 250, message = "Content must be between 3 and 250 characters")
+    @Size(min = 3, max = 1000, message = "Content must be between 3 and 1000 characters")
     @Column(name = "content", nullable = false)
     private String content;
 
