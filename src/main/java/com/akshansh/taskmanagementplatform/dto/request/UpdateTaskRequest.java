@@ -18,7 +18,7 @@ public class UpdateTaskRequest {
     @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     private String title;
 
-    @Size(max = 500, message = "Description can be max 500 characters")
+    @Size(max = 1000, message = "Description can be max 1000 characters")
     private String description;
 
     private TaskPriority priority;

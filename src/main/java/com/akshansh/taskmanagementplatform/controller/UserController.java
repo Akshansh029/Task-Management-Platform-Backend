@@ -53,7 +53,7 @@ public class UserController {
             @Valid @RequestBody CreateUserRequest request
     ){
         UserProfileResponse user = userService.getUserProfileById(userId);
-        if(user.getRole() == UserRole.ADMIN){
+        if(user == null || user.getRole() != UserRole.ADMIN){
             throw new ForbiddenException("Only admins can create users");
         }
         UserProfileResponse created = userService.createUser(request);
@@ -72,7 +72,7 @@ public class UserController {
             @PathVariable Long id
     ){
         UserProfileResponse user = userService.getUserProfileById(userId);
-        if(user.getRole() == UserRole.ADMIN){
+        if(user == null || user.getRole() != UserRole.ADMIN){
             throw new ForbiddenException("Only admins can delete users");
         }
         userService.deleteUser(id);
@@ -85,7 +85,7 @@ public class UserController {
             @Valid @RequestBody List<CreateUserRequest> users
     ){
         UserProfileResponse user = userService.getUserProfileById(userId);
-        if(user.getRole() == UserRole.ADMIN){
+        if(user.getRole() != UserRole.ADMIN){
             throw new ForbiddenException("Only admins can create users");
         }
         userService.bulkCreateUsers(users);

@@ -29,7 +29,7 @@ public class Task {
     private String title;
 
     @NotBlank(message = "Description is required")
-    @Size(max = 500, message = "Description can be max 500 characters")
+    @Size(max = 1000, message = "Description can be max 1000 characters")
     @Column(name = "description")
     private String description;
 

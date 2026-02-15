@@ -22,7 +22,7 @@ public class CreateTaskRequest {
     private String title;
 
     @NotBlank(message = "Description is required")
-    @Size(max = 500, message = "Description can be max 500 characters")
+    @Size(max = 1000, message = "Description can be max 1000 characters")
     private String description;
 
     @NotNull(message = "Task status cannot be null")

@@ -13,17 +13,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProjectRequest {
-    @NotBlank(message = "Title is required")
     @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     private String title;
 
     @Size(max = 1000, message = "Description can be max 1000 characters")
-    @NotBlank(message = "Description is required")
     private String description;
 
-    @NotNull(message = "Start data cannot be null")
     private LocalDateTime startDate;
 
-    @NotNull(message = "End data cannot be null")
     private LocalDateTime endDate;
 }
