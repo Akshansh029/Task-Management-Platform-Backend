@@ -18,13 +18,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Find all UserProfiles
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse(" +
-            "u.id, u.name, u.email, u.role, SIZE(u.ownedProjects)) " +
+            "u.id, u.name, u.email, u.role, u.createdAt, SIZE(u.ownedProjects)) " +
             "FROM User u")
     Page<UserProfileResponse> findAllUserProfiles(Pageable pageable);
 
     // Find UserProfile by id
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse(" +
-            "u.id, u.name, u.email, u.role, SIZE(u.ownedProjects)) " +
+            "u.id, u.name, u.email, u.role, u.createdAt, SIZE(u.ownedProjects)) " +
             "FROM User u WHERE u.id = ?1")
     UserProfileResponse findAllUserProfileById(Long userId);
 

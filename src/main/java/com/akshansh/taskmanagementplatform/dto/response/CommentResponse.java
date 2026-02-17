@@ -12,12 +12,14 @@ public class CommentResponse {
     private Long commentId;
     private String content;
     private String authorName;
+    private Long taskId;
 
     public static CommentResponse convertToDto(Comment comment){
         return new CommentResponse(
                 comment.getId(),
                 comment.getContent(),
-                comment.getAuthor().getName()
+                comment.getAuthor().getName(),
+                comment.getTask().getId()
         );
     }
 }

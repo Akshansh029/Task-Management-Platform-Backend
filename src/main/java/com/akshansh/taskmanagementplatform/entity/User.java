@@ -78,6 +78,7 @@ public class User {
                 u.getName(),
                 u.getEmail(),
                 u.getRole(),
+                u.getCreatedAt(),
                 u.ownedProjects.size()
         );
     }
