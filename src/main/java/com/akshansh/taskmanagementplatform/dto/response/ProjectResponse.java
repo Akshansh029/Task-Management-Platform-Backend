@@ -16,4 +16,6 @@ public class ProjectResponse {
     private LocalDateTime endDate;
     private LocalDateTime createdAt;
     private String ownerName;
+    private int totalMembers;
+    private int totalTasks;
 }

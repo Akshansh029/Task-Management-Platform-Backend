@@ -10,7 +10,6 @@ import com.akshansh.taskmanagementplatform.repository.CommentRepository;
 import com.akshansh.taskmanagementplatform.repository.ProjectRepository;
 import com.akshansh.taskmanagementplatform.repository.TaskRepository;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

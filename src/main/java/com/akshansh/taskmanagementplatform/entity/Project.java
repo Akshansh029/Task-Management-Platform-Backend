@@ -70,7 +70,9 @@ public class Project {
                 p.getStartDate(),
                 p.getEndDate(),
                 p.getCreatedAt(),
-                p.owner.getName()
+                p.owner.getName(),
+                p.members.size(),
+                p.tasks.size()
         );
     }
 
