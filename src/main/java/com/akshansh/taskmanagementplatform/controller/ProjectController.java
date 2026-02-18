@@ -5,13 +5,7 @@ import com.akshansh.taskmanagementplatform.dto.request.UpdateProjectRequest;
 import com.akshansh.taskmanagementplatform.dto.response.ProjectDetailsResponse;
 import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
-import com.akshansh.taskmanagementplatform.entity.Project;
-import com.akshansh.taskmanagementplatform.entity.UserRole;
-import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
-import com.akshansh.taskmanagementplatform.exception.RequiredHeaderNotFound;
-import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.service.ProjectService;
-import com.akshansh.taskmanagementplatform.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -75,7 +69,6 @@ public class ProjectController {
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ){
-        
             projectService.addMemberToProject(userId, projectId, memberId);
             return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -86,7 +79,6 @@ public class ProjectController {
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ){
-        
             projectService.removeMemberFromProject(userId, projectId, memberId);
             return ResponseEntity.noContent().build();
     }
@@ -97,7 +89,6 @@ public class ProjectController {
             @PathVariable Long projectId,
             @RequestBody List<Long> memberIds
     ){
-        
         projectService.addMembersToProject(userId, projectId, memberIds);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
