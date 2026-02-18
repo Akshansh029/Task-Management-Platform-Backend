@@ -7,6 +7,7 @@ import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
+import com.akshansh.taskmanagementplatform.exception.RequiredHeaderNotFound;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.ValidationException;
 import com.akshansh.taskmanagementplatform.service.UserService;
@@ -53,6 +54,7 @@ public class UserController {
             @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateUserRequest request
     ){
+        
         UserProfileResponse created = userService.createUser(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -63,6 +65,7 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request
     ){
+        
         UserProfileResponse updated = userService.updateUser(userId, id, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
@@ -73,6 +76,7 @@ public class UserController {
             @PathVariable Long id,
             @RequestBody UpdateUserRoleRequest request
     ){
+        
         UserProfileResponse updatedRole = userService.updateUserRole(userId, id, request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedRole);
     }
@@ -82,6 +86,7 @@ public class UserController {
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id
     ){
+        
         userService.deleteUser(userId, id);
         return ResponseEntity.noContent().build();
     }

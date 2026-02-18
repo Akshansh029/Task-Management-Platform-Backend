@@ -5,6 +5,7 @@ import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskStatusRequest;
 import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
+import com.akshansh.taskmanagementplatform.exception.RequiredHeaderNotFound;
 import com.akshansh.taskmanagementplatform.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -47,7 +48,8 @@ public class TaskController {
     public ResponseEntity<TaskByIdResponse> getTaskById(
             @RequestHeader("X-User-ID") Long userId,
             @RequestHeader("X-Project-ID") Long projectId,
-            @PathVariable Long taskId){
+            @PathVariable Long taskId
+    ){
         TaskByIdResponse task = taskService.getTaskById(userId, projectId, taskId);
         return ResponseEntity.status(HttpStatus.OK).body(task);
     }
@@ -57,6 +59,7 @@ public class TaskController {
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId
     ){
+        
         List<TaskResponse> tasksByProject = taskService.getAllTasksByProjectId(userId, projectId);
         return ResponseEntity.status(HttpStatus.OK).body(tasksByProject);
     }
@@ -67,6 +70,10 @@ public class TaskController {
             @RequestHeader("X-Project-ID") Long projectId,
             @PathVariable Long assigneeId
     ){
+        
+        if(projectId == null){
+            throw new RequiredHeaderNotFound("Required request header 'X-Project-ID' was not found");
+        }
         List<TaskResponse> tasksForAssignee =
                 taskService.getAllTasksByAssigneeId(userId, projectId, assigneeId);
 
@@ -79,6 +86,7 @@ public class TaskController {
             @PathVariable Long taskId,
             @Valid @RequestBody UpdateTaskRequest request)
     {
+        
         TaskResponse updated = taskService.updateTask(userId, taskId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
@@ -98,6 +106,7 @@ public class TaskController {
             @PathVariable Long taskId,
             @Valid @RequestBody UpdateTaskStatusRequest request
     ){
+        
         taskService.updateTaskStatus(userId, taskId, request);
         return ResponseEntity.noContent().build();
     }

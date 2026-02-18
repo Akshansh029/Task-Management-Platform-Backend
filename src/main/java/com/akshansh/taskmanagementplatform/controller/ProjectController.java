@@ -8,6 +8,7 @@ import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
+import com.akshansh.taskmanagementplatform.exception.RequiredHeaderNotFound;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.service.ProjectService;
 import com.akshansh.taskmanagementplatform.service.UserService;
@@ -33,6 +34,7 @@ public class ProjectController {
             @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateProjectRequest request
     ){
+        
         ProjectResponse created = projectService.createProject(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -51,6 +53,7 @@ public class ProjectController {
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId
     ){
+        
         ProjectDetailsResponse prjById = projectService.getProjectById(userId, projectId);
         return ResponseEntity.status(HttpStatus.OK).body(prjById);
     }
@@ -61,6 +64,7 @@ public class ProjectController {
             @PathVariable Long projectId,
             @Valid @RequestBody UpdateProjectRequest request)
     {
+        
         ProjectResponse updated = projectService.updateProject(userId, projectId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
@@ -71,6 +75,7 @@ public class ProjectController {
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ){
+        
             projectService.addMemberToProject(userId, projectId, memberId);
             return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -81,6 +86,7 @@ public class ProjectController {
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ){
+        
             projectService.removeMemberFromProject(userId, projectId, memberId);
             return ResponseEntity.noContent().build();
     }
@@ -91,6 +97,7 @@ public class ProjectController {
             @PathVariable Long projectId,
             @RequestBody List<Long> memberIds
     ){
+        
         projectService.addMembersToProject(userId, projectId, memberIds);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -108,7 +115,9 @@ public class ProjectController {
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Void> deleteProject(
             @RequestHeader("X-User-ID") Long userId,
-            @PathVariable Long projectId){
+            @PathVariable Long projectId
+    ){
+        
         projectService.deleteProject(userId, projectId);
         return ResponseEntity.noContent().build();
     }
