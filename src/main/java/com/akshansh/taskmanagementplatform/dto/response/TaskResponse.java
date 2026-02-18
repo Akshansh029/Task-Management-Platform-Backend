@@ -29,7 +29,11 @@ public class TaskResponse {
 
     private LocalDateTime dueDate;
 
+    private Long assigneeId;
+
     private String assigneeName;
+
+    private Long projectId;
 
     private String projectTitle;
 
@@ -42,7 +46,9 @@ public class TaskResponse {
                 t.getPriority(),
                 t.getCreatedAt(),
                 t.getDueDate(),
+                t.getAssignee().getId(),
                 t.getAssignee().getName(),
+                t.getProject().getId(),
                 t.getProject().getTitle()
         );
     }

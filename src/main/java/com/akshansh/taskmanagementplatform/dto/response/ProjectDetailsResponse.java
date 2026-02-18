@@ -21,6 +21,7 @@ public class ProjectDetailsResponse {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime createdAt;
+    private Long ownerId;
     private String ownerName;
     private String ownerEmail;
     private Set<TaskResponse> tasks;
@@ -34,6 +35,7 @@ public class ProjectDetailsResponse {
                 prj.getStartDate(),
                 prj.getEndDate(),
                 prj.getCreatedAt(),
+                prj.getOwner().getId(),
                 prj.getOwner().getName(),
                 prj.getOwner().getEmail(),
                 prj.getTasks().stream().map(TaskResponse::convertToDto).collect(Collectors.toSet()),

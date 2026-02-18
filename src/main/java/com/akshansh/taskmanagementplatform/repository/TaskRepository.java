@@ -14,20 +14,20 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.TaskResponse(" +
-            "t.id, t.title, t.description, t.status, t.priority, t.createdAt, t.dueDate, t.assignee.name, " +
-            "t.project.title)" +
+            "t.id, t.title, t.description, t.status, t.priority, t.createdAt, t.dueDate, t.assignee.id," +
+            " t.assignee.name, t.project.id, t.project.title)" +
             "FROM Task t WHERE t.assignee.id = ?1")
     List<TaskResponse> findAllByAssignee_Id(Long assigneeId);
 
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.TaskResponse(" +
-            "t.id, t.title, t.description, t.status, t.priority, t.createdAt, t.dueDate, t.assignee.name, " +
-            "t.project.title)" +
+            "t.id, t.title, t.description, t.status, t.priority, t.createdAt, t.dueDate, t.assignee.id, " +
+            "t.assignee.name, t.project.id, t.project.title)" +
             "FROM Task t WHERE t.project.id = ?1")
     List<TaskResponse> findAllByProject_Id(Long projectId);
 
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.TaskResponse(" +
-            "t.id, t.title, t.description, t.status, t.priority, t.createdAt, t.dueDate, t.assignee.name, " +
-            "t.project.title)" +
+            "t.id, t.title, t.description, t.status, t.priority, t.createdAt, t.dueDate, t.assignee.id, " +
+            "t.assignee.name, t.project.id, t.project.title)" +
             "FROM Task t")
     Page<TaskResponse> findAllTasks(Pageable pageable);
 }
