@@ -1,5 +1,7 @@
 package com.akshansh.taskmanagementplatform.entity;
 
+import com.akshansh.taskmanagementplatform.dto.response.CommentResponse;
+import com.akshansh.taskmanagementplatform.dto.response.LabelResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import jakarta.persistence.*;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tasks")
@@ -96,8 +99,8 @@ public class Task {
             t.getDueDate(),
             t.getAssignee().getName(),
             t.getProject().getTitle(),
-            t.getComments(),
-            t.getLabels()
+                t.getComments().stream().map(CommentResponse::convertToDto).toList(),
+            t.getLabels().stream().map(LabelResponse::convertToDto).collect(Collectors.toSet())
         );
     }
 }

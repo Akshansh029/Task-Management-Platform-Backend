@@ -34,7 +34,7 @@ public class TaskByIdResponse{
 
     private String projectTitle;
 
-    private List<Comment> comments;
+    private List<CommentResponse> comments;
 
-    private Set<Label> labels;
+    private Set<LabelResponse> labels;
 }

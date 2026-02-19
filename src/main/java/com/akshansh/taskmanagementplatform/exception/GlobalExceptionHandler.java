@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
         ValidationErrorResponse error = new ValidationErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                ex.getMessage(),
+                "Validation failed of incorrect field types or values",
                 errors
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
