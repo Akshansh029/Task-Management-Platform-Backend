@@ -58,6 +58,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidTaskDueDate.class)
+    public ResponseEntity<ErrorResponse> handleInvalidTaskDueDate(InvalidTaskDueDate ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid task due date",
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(UserNotPartOfProjectException.class)
     public ResponseEntity<ErrorResponse> handleUserNotPartOfProject(UserNotPartOfProjectException ex, WebRequest request) {
         ErrorResponse error = new ErrorResponse(

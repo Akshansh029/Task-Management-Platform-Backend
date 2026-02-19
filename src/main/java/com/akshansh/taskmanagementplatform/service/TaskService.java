@@ -8,6 +8,7 @@ import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.entity.Task;
 import com.akshansh.taskmanagementplatform.entity.User;
+import com.akshansh.taskmanagementplatform.exception.InvalidTaskDueDate;
 import org.springframework.data.domain.Page;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,6 +57,10 @@ public class TaskService {
 
         Project prj = projectRepo.findById(request.getProjectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Project with ID: " + request.getProjectId() + " not found"));
+
+        if(request.getDueDate().isAfter(prj.getEndDate())){
+            throw new InvalidTaskDueDate("Task's due date cannot be greater than project's end date");
+        }
 
         Task newTask = new Task(
                 request.getTitle(),
