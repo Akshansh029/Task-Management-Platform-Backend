@@ -35,9 +35,9 @@ public class UserService {
         return user != null && user.getRole() == UserRole.ADMIN;
     }
 
-    public Page<UserProfileResponse> getAllUsers(int pageNo, int pageSize){
+    public Page<UserProfileResponse> getAllUsers(int pageNo, int pageSize, String search){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return userRepo.findAllUserProfiles(pageable);
+        return userRepo.findAllUserProfiles(pageable, search);
     }
 
     public UserProfileResponse getUserProfileById(Long userId){

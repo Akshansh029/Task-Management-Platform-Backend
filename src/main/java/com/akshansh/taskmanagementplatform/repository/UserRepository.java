@@ -12,15 +12,14 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // Find all users
-    @Override
-    List<User> findAll();
-
     // Find all UserProfiles
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse(" +
             "u.id, u.name, u.email, u.role, u.createdAt, SIZE(u.ownedProjects)) " +
-            "FROM User u")
-    Page<UserProfileResponse> findAllUserProfiles(Pageable pageable);
+            "FROM User u WHERE (:search IS NULL OR " +
+            "LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))"
+    )
+    Page<UserProfileResponse> findAllUserProfiles(Pageable pageable, String search);
 
     // Find UserProfile by id
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse(" +

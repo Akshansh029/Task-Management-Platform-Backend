@@ -29,9 +29,10 @@ public class UserController {
     @GetMapping
     public ResponseEntity<Page<UserProfileResponse>> getAllUserProfiles(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
-            @RequestParam(defaultValue = "10", required = false) int pageSize
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(required = false) String search
     ){
-        Page<UserProfileResponse> profiles = userService.getAllUsers(pageNo, pageSize);
+        Page<UserProfileResponse> profiles = userService.getAllUsers(pageNo, pageSize, search);
         return ResponseEntity.status(HttpStatus.OK).body(profiles);
     }
 
