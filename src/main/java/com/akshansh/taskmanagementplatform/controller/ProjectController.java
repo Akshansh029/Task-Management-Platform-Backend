@@ -36,9 +36,10 @@ public class ProjectController {
     @GetMapping
     public ResponseEntity<Page<ProjectResponse>> getAllProjects(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
-            @RequestParam(defaultValue = "10", required = false) int pageSize
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(required = false) String search
     ){
-        Page<ProjectResponse> allProjects = projectService.getAllProjects(pageNo, pageSize);
+        Page<ProjectResponse> allProjects = projectService.getAllProjects(pageNo, pageSize, search);
         return ResponseEntity.status(HttpStatus.OK).body(allProjects);
     }
 

@@ -77,9 +77,10 @@ public class ProjectService {
         return convertToDto(prj);
     }
 
-    public Page<ProjectResponse> getAllProjects(int pageNo, int pageSize){
+    public Page<ProjectResponse> getAllProjects(int pageNo, int pageSize, String search){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return projectRepo.findAllProjects(pageable);
+
+        return projectRepo.findAllProjects(pageable, search);
     }
 
     public ProjectDetailsResponse getProjectById(Long userId, Long projectId){
