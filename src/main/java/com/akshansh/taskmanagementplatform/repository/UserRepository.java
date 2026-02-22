@@ -27,12 +27,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
         u.id, u.name, u.email, u.role, u.createdAt, SIZE(u.ownedProjects)
     )
     FROM User u
-    WHERE (:search IS NULL OR
-           LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR
-           LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))
+    WHERE u.name ILIKE CONCAT('%', :search, '%')
+       OR u.email ILIKE CONCAT('%', :search, '%')
 """)
     Page<UserProfileResponse> findAllUserProfiles(
             @Param("search") String search,
+            Pageable pageable
+    );
+
+    @Query("""
+    SELECT new com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse(
+        u.id, u.name, u.email, u.role, u.createdAt, SIZE(u.ownedProjects)
+    )
+    FROM User u
+""")
+    Page<UserProfileResponse> findAllUserProfiles(
             Pageable pageable
     );
 

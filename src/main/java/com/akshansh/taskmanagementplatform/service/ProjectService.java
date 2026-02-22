@@ -79,6 +79,11 @@ public class ProjectService {
 
     public Page<ProjectResponse> getAllProjects(int pageNo, int pageSize, String search){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        if(search == null || search.isBlank()){
+            return projectRepo.findAllProjects(pageable);
+        }
+
         return projectRepo.findAllProjects(search, pageable);
     }
 

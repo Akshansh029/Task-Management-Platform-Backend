@@ -15,9 +15,15 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.ProjectResponse(" +
             "p.id, p.title, p.startDate, p.endDate, p.createdAt, p.owner.name, SIZE(p.members), SIZE(p.tasks)) " +
             "FROM Project p WHERE (:search IS NULL OR " +
-            "LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(p.owner.name) LIKE LOWER(CONCAT('%', :search, '%')))"
+            "LOWER(p.title) ILIKE CONCAT('%', :search, '%') OR " +
+            "LOWER(p.description) ILIKE CONCAT('%', :search, '%') OR " +
+            "LOWER(p.owner.name) LIKE CONCAT('%', :search, '%'))"
     )
     Page<ProjectResponse> findAllProjects(@Param("search") String search, Pageable pageable);
+
+    @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.ProjectResponse(" +
+            "p.id, p.title, p.startDate, p.endDate, p.createdAt, p.owner.name, SIZE(p.members), SIZE(p.tasks)) " +
+            "FROM Project p"
+    )
+    Page<ProjectResponse> findAllProjects(Pageable pageable);
 }
