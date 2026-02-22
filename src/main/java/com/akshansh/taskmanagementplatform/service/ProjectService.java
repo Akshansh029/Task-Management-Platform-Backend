@@ -79,7 +79,7 @@ public class ProjectService {
 
     public Page<ProjectResponse> getAllProjects(int pageNo, int pageSize, String search){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return projectRepo.findAllProjects(pageable, search);
+        return projectRepo.findAllProjects(search, pageable);
     }
 
     public ProjectDetailsResponse getProjectById(Long userId, Long projectId){

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -18,5 +19,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             "LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
             "LOWER(p.owner.name) LIKE LOWER(CONCAT('%', :search, '%')))"
     )
-    Page<ProjectResponse> findAllProjects(Pageable pageable, String search);
+    Page<ProjectResponse> findAllProjects(@Param("search") String search, Pageable pageable);
 }

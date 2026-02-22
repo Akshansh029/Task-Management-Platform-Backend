@@ -37,7 +37,7 @@ public class UserService {
 
     public Page<UserProfileResponse> getAllUsers(int pageNo, int pageSize, String search){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return userRepo.findAllUserProfiles(pageable, search);
+        return userRepo.findAllUserProfiles(search, pageable);
     }
 
     public UserProfileResponse getUserProfileById(Long userId){
