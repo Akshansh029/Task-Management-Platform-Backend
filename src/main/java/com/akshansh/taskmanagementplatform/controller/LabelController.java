@@ -28,7 +28,7 @@ public class LabelController {
 
     @Operation(summary = "Get all labels", description = "Retrieve a list of all labels in the system")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Labels retrieved successfully",
+            @ApiResponse(responseCode = "201", description = "Labels retrieved successfully",
                     content = @Content(schema = @Schema(implementation = LabelResponse.class)))
     })
     @GetMapping("/api/labels")

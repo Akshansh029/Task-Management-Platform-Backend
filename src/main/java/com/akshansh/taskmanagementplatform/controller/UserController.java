@@ -72,7 +72,7 @@ public class UserController {
 
     @Operation(summary = "Create a new user", description = "Add a new user to the system")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User created successfully",
+            @ApiResponse(responseCode = "201", description = "User created successfully",
                     content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request data",
                     content = @Content(schema = @Schema())),

@@ -33,7 +33,7 @@ public class ProjectController {
 
     @Operation(summary = "Create a new project", description = "Add a new project to the system")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Project created successfully",
+            @ApiResponse(responseCode = "201", description = "Project created successfully",
                     content = @Content(schema = @Schema(implementation = ProjectResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request data",
                     content = @Content(schema = @Schema())),

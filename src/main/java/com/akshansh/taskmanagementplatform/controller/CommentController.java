@@ -30,7 +30,7 @@ public class CommentController {
 
     @Operation(summary = "Create a new comment", description = "Add a new comment to the system")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Comment created successfully",
+            @ApiResponse(responseCode = "201", description = "Comment created successfully",
                     content = @Content(schema = @Schema(implementation = CommentResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request data",
                     content = @Content(schema = @Schema())),
