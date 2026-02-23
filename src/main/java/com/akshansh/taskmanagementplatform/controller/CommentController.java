@@ -4,6 +4,7 @@ import com.akshansh.taskmanagementplatform.dto.request.CreateCommentRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateCommentRequest;
 import com.akshansh.taskmanagementplatform.dto.response.CommentResponse;
 import com.akshansh.taskmanagementplatform.service.CommentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping
+@Tag(name = "User Management", description = "APIs for managing comments")
 public class CommentController {
     private final CommentService commentService;
 

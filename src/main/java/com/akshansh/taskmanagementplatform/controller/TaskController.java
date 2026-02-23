@@ -6,6 +6,7 @@ import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskStatusRequest;
 import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.service.TaskService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping
+@Tag(name = "Task Management", description = "APIs for managing tasks")
 public class TaskController {
     private final TaskService taskService;
 

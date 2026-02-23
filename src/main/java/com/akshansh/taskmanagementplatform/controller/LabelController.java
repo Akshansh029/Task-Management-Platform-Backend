@@ -3,6 +3,7 @@ package com.akshansh.taskmanagementplatform.controller;
 import com.akshansh.taskmanagementplatform.dto.request.CreateLabelRequest;
 import com.akshansh.taskmanagementplatform.dto.response.LabelResponse;
 import com.akshansh.taskmanagementplatform.service.LabelService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@Tag(name = "User Management", description = "APIs for managing labels")
 public class LabelController {
     private final LabelService labelService;
 

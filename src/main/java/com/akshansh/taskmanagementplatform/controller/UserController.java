@@ -9,6 +9,12 @@ import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.ValidationException;
 import com.akshansh.taskmanagementplatform.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -19,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "User Management", description = "APIs for managing users")
 public class UserController {
     private final UserService userService;
 
@@ -26,6 +33,11 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Get all users", description = "Retrieve a list of all users in the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class)))
+    })
     @GetMapping
     public ResponseEntity<Page<UserProfileResponse>> getAllUserProfiles(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
@@ -36,6 +48,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(profiles);
     }
 
+    @Operation(summary = "Get user by ID", description = "Retrieve a user's details using their ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found",
+                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema()))
+    })
     @GetMapping("/{id}")
     public ResponseEntity<UserProfileResponse> getUserProfileById(@PathVariable Long id){
         if(id == null){
@@ -48,16 +67,34 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(profile);
     }
 
+    @Operation(summary = "Create a new user", description = "Add a new user to the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User created successfully",
+                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "403", description = "Unauthorized action",
+                    content = @Content(schema = @Schema()))
+    })
     @PostMapping
     public ResponseEntity<UserProfileResponse> createUser(
             @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateUserRequest request
     ){
-        
+
         UserProfileResponse created = userService.createUser(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @Operation(summary = "Update a user", description = "Update an existing user's details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User updated successfully",
+                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "403", description = "Unauthorized action",
+                    content = @Content(schema = @Schema()))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<UserProfileResponse> updateUser(
             @RequestHeader("X-User-ID") Long userId,
@@ -69,6 +106,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
+    @Operation(summary = "Update a user's role", description = "Update an existing user's role")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User role updated successfully",
+                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "403", description = "Unauthorized action",
+                    content = @Content(schema = @Schema()))
+    })
     @PatchMapping("/{id}")
     public ResponseEntity<UserProfileResponse> updateUserRole(
             @RequestHeader("X-User-ID") Long userId,
@@ -80,16 +126,30 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedRole);
     }
 
+    @Operation(summary = "Delete a user", description = "Delete a user from the system using their ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema()))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id
     ){
-        
         userService.deleteUser(userId, id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Create multiple new users", description = "Add multiple new users to the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users created successfully",
+                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "403", description = "Unauthorized action",
+                    content = @Content(schema = @Schema()))
+    })
     @PostMapping("/bulk-create")
     public ResponseEntity<Void> bulkUserCreation(
             @RequestHeader("X-User-ID") Long userId,
