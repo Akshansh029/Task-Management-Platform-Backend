@@ -33,6 +33,7 @@ public class UserController {
         this.userService = userService;
     }
 
+
     @Operation(summary = "Get all users", description = "Retrieve a list of all users in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
@@ -47,6 +48,7 @@ public class UserController {
         Page<UserProfileResponse> profiles = userService.getAllUsers(pageNo, pageSize, search);
         return ResponseEntity.status(HttpStatus.OK).body(profiles);
     }
+
 
     @Operation(summary = "Get user by ID", description = "Retrieve a user's details using their ID")
     @ApiResponses(value = {
@@ -67,6 +69,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(profile);
     }
 
+
     @Operation(summary = "Create a new user", description = "Add a new user to the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User created successfully",
@@ -85,6 +88,7 @@ public class UserController {
         UserProfileResponse created = userService.createUser(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
 
     @Operation(summary = "Update a user", description = "Update an existing user's details")
     @ApiResponses(value = {
@@ -106,6 +110,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
+
     @Operation(summary = "Update a user's role", description = "Update an existing user's role")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User role updated successfully",
@@ -126,6 +131,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedRole);
     }
 
+
     @Operation(summary = "Delete a user", description = "Delete a user from the system using their ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204"),
@@ -140,6 +146,7 @@ public class UserController {
         userService.deleteUser(userId, id);
         return ResponseEntity.noContent().build();
     }
+
 
     @Operation(summary = "Create multiple new users", description = "Add multiple new users to the system")
     @ApiResponses(value = {
