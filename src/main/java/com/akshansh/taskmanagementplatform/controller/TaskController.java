@@ -7,6 +7,7 @@ import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
 import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -55,7 +56,7 @@ public class TaskController {
     @Operation(summary = "Get all tasks", description = "Retrieve a list of all tasks in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
+                    content = @Content(schema = @Schema(implementation = Page.class))),
             @ApiResponse(responseCode = "403", description = "Unauthorized action"),
             @ApiResponse(responseCode = "404", description = "User/Project not found",
                 content = @Content(schema = @Schema())),
@@ -94,7 +95,7 @@ public class TaskController {
     @Operation(summary = "Get all tasks by project", description = "Retrieve a list tasks for a project using project ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Tasks found",
-                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskResponse.class)))),
             @ApiResponse(responseCode = "403", description = "Unauthorized action",
                     content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Project not found",
@@ -113,7 +114,7 @@ public class TaskController {
     @Operation(summary = "Get all tasks by assignee", description = "Retrieve a list tasks for a particular user using user ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Tasks found",
-                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskResponse.class)))),
             @ApiResponse(responseCode = "403", description = "Unauthorized action",
                     content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "User not found",
@@ -195,7 +196,7 @@ public class TaskController {
             @ApiResponse(responseCode = "204", description = "Task deleted successfully"),
             @ApiResponse(responseCode = "403", description = "Unauthorized action",
                     content = @Content(schema = @Schema())),
-            @ApiResponse(responseCode = "404", description = "Task/Project/User not found",
+            @ApiResponse(responseCode = "404", description = "Task/Project not found",
                     content = @Content(schema = @Schema()))
     })
     @DeleteMapping("/api/tasks/{taskId}")

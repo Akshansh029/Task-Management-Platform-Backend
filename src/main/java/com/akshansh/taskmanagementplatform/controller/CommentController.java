@@ -3,8 +3,10 @@ package com.akshansh.taskmanagementplatform.controller;
 import com.akshansh.taskmanagementplatform.dto.request.CreateCommentRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateCommentRequest;
 import com.akshansh.taskmanagementplatform.dto.response.CommentResponse;
+import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -52,7 +54,7 @@ public class CommentController {
     @Operation(summary = "Get all comments", description = "Retrieve a list of all comments in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Comment retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = CommentResponse.class))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentResponse.class)))),
             @ApiResponse(responseCode = "404", description = "Task not found",
                     content = @Content(schema = @Schema()))
     })

@@ -2,8 +2,10 @@ package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateLabelRequest;
 import com.akshansh.taskmanagementplatform.dto.response.LabelResponse;
+import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.service.LabelService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,7 +31,7 @@ public class LabelController {
     @Operation(summary = "Get all labels", description = "Retrieve a list of all labels in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Labels retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = LabelResponse.class)))
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = LabelResponse.class))))
     })
     @GetMapping("/api/labels")
     public ResponseEntity<List<LabelResponse>> getAllLabels(){
@@ -37,6 +39,7 @@ public class LabelController {
         return ResponseEntity.status(HttpStatus.OK).body(labels);
     }
 
+    
     @Operation(summary = "Create a new label", description = "Add a new label to the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Label created successfully",

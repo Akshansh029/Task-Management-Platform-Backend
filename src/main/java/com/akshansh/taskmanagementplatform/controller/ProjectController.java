@@ -56,7 +56,7 @@ public class ProjectController {
     @Operation(summary = "Get all projects", description = "Retrieve a list of all projects in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = ProjectResponse.class)))
+                    content = @Content(schema = @Schema(implementation = Page.class)))
     })
     @GetMapping
     public ResponseEntity<Page<ProjectResponse>> getAllProjects(
@@ -146,10 +146,11 @@ public class ProjectController {
             return ResponseEntity.noContent().build();
     }
 
+
     @Operation(summary = "Add multiple members to project", description = "Add multiple users to the project as members")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Members added successfully",
-                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
+                    content = @Content(schema = @Schema(implementation = Page.class))),
             @ApiResponse(responseCode = "403", description = "Unauthorized action",
                     content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "User/Project not found",

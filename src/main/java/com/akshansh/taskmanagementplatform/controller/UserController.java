@@ -37,7 +37,7 @@ public class UserController {
     @Operation(summary = "Get all users", description = "Retrieve a list of all users in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class)))
+                    content = @Content(schema = @Schema(implementation = Page.class)))
     })
     @GetMapping
     public ResponseEntity<Page<UserProfileResponse>> getAllUserProfiles(
