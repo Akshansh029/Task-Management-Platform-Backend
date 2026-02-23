@@ -152,6 +152,7 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
+
     @Operation(summary = "Assign task to user", description = "Assign a task to a user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Task assigned successfully",
@@ -170,6 +171,7 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+
     @Operation(summary = "Update a task's status", description = "Update an existing task's status")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Task status updated successfully",
@@ -185,7 +187,6 @@ public class TaskController {
             @PathVariable Long taskId,
             @Valid @RequestBody UpdateTaskStatusRequest request
     ){
-        
         taskService.updateTaskStatus(userId, taskId, request);
         return ResponseEntity.noContent().build();
     }
