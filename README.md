@@ -34,6 +34,8 @@ Access the Swagger UI for interactive API testing:
 - **Local:** http://localhost:8080/swagger-ui.html
 - **Production:** [https://task-management-platform-backend-9hc5.onrender.com/swagger-ui.html](https://task-management-platform-backend-9hc5.onrender.com/swagger-ui.html)
 
+![Swagger UI](Swagger-UI.png)
+
 ### OpenAPI Specification
 
 The OpenAPI spec is available at:
