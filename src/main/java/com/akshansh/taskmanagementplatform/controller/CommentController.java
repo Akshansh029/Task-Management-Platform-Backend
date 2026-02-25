@@ -41,7 +41,7 @@ public class CommentController {
             @ApiResponse(responseCode = "404", description = "User/Project/Task not found",
                     content = @Content(schema = @Schema()))
     })
-    @PostMapping("/api/tasks/{taskId}/comments")
+    @PostMapping("/tasks/{taskId}/comments")
     public ResponseEntity<CommentResponse> createComment(
             @PathVariable Long taskId,
             @Valid @RequestBody CreateCommentRequest request
@@ -58,7 +58,7 @@ public class CommentController {
             @ApiResponse(responseCode = "404", description = "Task not found",
                     content = @Content(schema = @Schema()))
     })
-    @GetMapping("/api/tasks/{taskId}/comments")
+    @GetMapping("/tasks/{taskId}/comments")
     public ResponseEntity<List<CommentResponse>> getAllComments(
             @PathVariable Long taskId
     ){
@@ -76,7 +76,7 @@ public class CommentController {
             @ApiResponse(responseCode = "403", description = "Unauthorized action",
                     content = @Content(schema = @Schema()))
     })
-    @PutMapping("/api/comments/{commentId}")
+    @PutMapping("/comments/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
             @PathVariable Long commentId,
             @Valid @RequestBody UpdateCommentRequest request
@@ -92,7 +92,7 @@ public class CommentController {
             @ApiResponse(responseCode = "404", description = "Comment not found",
                     content = @Content(schema = @Schema()))
     })
-    @DeleteMapping("/api/comments/{commentId}")
+    @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @RequestHeader Long userId,
             @PathVariable Long commentId

@@ -43,7 +43,7 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "Project not found",
                     content = @Content(schema = @Schema()))
     })
-    @PostMapping("/api/projects/tasks")
+    @PostMapping("/projects/tasks")
     public ResponseEntity<TaskResponse> createTask(
             @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateTaskRequest request
@@ -61,7 +61,7 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "User/Project not found",
                 content = @Content(schema = @Schema())),
     })
-    @GetMapping("/api/tasks")
+    @GetMapping("/tasks")
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
             @RequestHeader("X-User-ID") Long userId,
             @RequestHeader("X-Project-ID") Long projectId,
@@ -81,7 +81,7 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "Task not found",
                     content = @Content(schema = @Schema()))
     })
-    @GetMapping("/api/tasks/{taskId}")
+    @GetMapping("/tasks/{taskId}")
     public ResponseEntity<TaskByIdResponse> getTaskById(
             @RequestHeader("X-User-ID") Long userId,
             @RequestHeader("X-Project-ID") Long projectId,
@@ -101,7 +101,7 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "Project not found",
                     content = @Content(schema = @Schema()))
     })
-    @GetMapping("/api/projects/{projectId}/tasks")
+    @GetMapping("/projects/{projectId}/tasks")
     public ResponseEntity<List<TaskResponse>> getAllTasksByProjectId(
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId
@@ -120,7 +120,7 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(schema = @Schema()))
     })
-    @GetMapping("/api/assignee/{assigneeId}/tasks")
+    @GetMapping("/assignee/{assigneeId}/tasks")
     public ResponseEntity<List<TaskResponse>> getAllTasksByAssigneeId(
             @RequestHeader("X-User-ID") Long userId,
             @RequestHeader("X-Project-ID") Long projectId,
@@ -142,7 +142,7 @@ public class TaskController {
             @ApiResponse(responseCode = "403", description = "Unauthorized action",
                     content = @Content(schema = @Schema()))
     })
-    @PutMapping("/api/tasks/{taskId}")
+    @PutMapping("/tasks/{taskId}")
     public ResponseEntity<TaskResponse> updateTask(
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long taskId,
@@ -162,7 +162,7 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "User/Project not found",
                     content = @Content(schema = @Schema())),
     })
-    @PatchMapping("/api/tasks/{taskId}/assign/{userId}")
+    @PatchMapping("/tasks/{taskId}/assign/{userId}")
     public ResponseEntity<Void> assignTaskToUser(
             @PathVariable Long taskId,
             @PathVariable Long userId
@@ -181,7 +181,7 @@ public class TaskController {
             @ApiResponse(responseCode = "403", description = "Unauthorized action",
                     content = @Content(schema = @Schema()))
     })
-    @PatchMapping("/api/tasks/{taskId}/status")
+    @PatchMapping("/tasks/{taskId}/status")
     public ResponseEntity<Void> updateTaskStatus(
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long taskId,
@@ -200,7 +200,7 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "Task/Project not found",
                     content = @Content(schema = @Schema()))
     })
-    @DeleteMapping("/api/tasks/{taskId}")
+    @DeleteMapping("/tasks/{taskId}")
     public ResponseEntity<Void> deleteTask(
             @RequestHeader("X-User-ID") Long userId,
             @RequestHeader("X-Project-ID") Long projectId,

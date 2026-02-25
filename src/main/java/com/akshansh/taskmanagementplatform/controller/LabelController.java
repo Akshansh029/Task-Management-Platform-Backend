@@ -33,7 +33,7 @@ public class LabelController {
             @ApiResponse(responseCode = "201", description = "Labels retrieved successfully",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = LabelResponse.class))))
     })
-    @GetMapping("/api/labels")
+    @GetMapping("/labels")
     public ResponseEntity<List<LabelResponse>> getAllLabels(){
         List<LabelResponse> labels = labelService.getAllLabels();
         return ResponseEntity.status(HttpStatus.OK).body(labels);
@@ -47,7 +47,7 @@ public class LabelController {
             @ApiResponse(responseCode = "400", description = "Invalid request data",
                     content = @Content(schema = @Schema()))
     })
-    @PostMapping("/api/labels")
+    @PostMapping("/labels")
     public ResponseEntity<LabelResponse> createLabel(
             @Valid @RequestBody CreateLabelRequest request
     ){
@@ -62,7 +62,7 @@ public class LabelController {
             @ApiResponse(responseCode = "404", description = "Label/Task not found",
                     content = @Content(schema = @Schema()))
     })
-    @PostMapping("/api/tasks/{taskId}/labels/{labelId}")
+    @PostMapping("/tasks/{taskId}/labels/{labelId}")
     public ResponseEntity<Void> addLabelToTask(
         @PathVariable Long taskId,
         @PathVariable Long labelId
@@ -78,7 +78,7 @@ public class LabelController {
             @ApiResponse(responseCode = "404", description = "Label/Task not found",
                     content = @Content(schema = @Schema()))
     })
-    @DeleteMapping("/api/tasks/{taskId}/labels/{labelId}")
+    @DeleteMapping("/tasks/{taskId}/labels/{labelId}")
     public ResponseEntity<Void> removeLabelFromTask(
         @PathVariable Long taskId,
         @PathVariable Long labelId
@@ -94,7 +94,7 @@ public class LabelController {
             @ApiResponse(responseCode = "404", description = "Label not found",
                     content = @Content(schema = @Schema()))
     })
-    @DeleteMapping("/api/labels/{labelId}")
+    @DeleteMapping("/labels/{labelId}")
     public ResponseEntity<Void> deleteLabel(
         @PathVariable Long labelId
     ){

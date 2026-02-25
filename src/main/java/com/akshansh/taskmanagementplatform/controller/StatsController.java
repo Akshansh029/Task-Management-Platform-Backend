@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/stats")
+@RequestMapping("/stats")
 @Tag(name = "Stats Controller", description = "APIs for platform stats")
 public class StatsController {
     private final StatsService statsService;
