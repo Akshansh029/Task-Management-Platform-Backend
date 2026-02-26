@@ -5,6 +5,7 @@ import com.akshansh.taskmanagementplatform.exception.ValidationException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -33,6 +34,11 @@ public class User {
     @Size(max = 50, message = "Email can be max 50 characters")
     @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @NotNull(message = "Password is required")
+    @Size(max = 50, message = "Password can be max 50 characters")
+    @Column(nullable = false)
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

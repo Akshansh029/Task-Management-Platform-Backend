@@ -14,16 +14,17 @@ import lombok.*;
 public class CreateUserRequest {
     @NotBlank(message = "Name is required")
     @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
-    @Column(name = "name", nullable = false)
     private String name;
 
     @Email(message = "Email must be valid")
     @NotBlank(message = "Email is required")
     @Size(max = 50, message = "Email can be max 50 characters")
-    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @NotBlank(message = "Password is required")
+    @Size(max = 50, message = "Password can be max 50 characters")
+    private String password;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
     private UserRole role;
 }
