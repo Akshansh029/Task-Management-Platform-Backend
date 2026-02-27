@@ -8,11 +8,14 @@ import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
+import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +26,11 @@ import java.util.stream.Collectors;
 import static com.akshansh.taskmanagementplatform.entity.User.convertToDto;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepo){
-        this.userRepo = userRepo;
-    }
 
     public boolean isAdmin(Long userId){
         UserProfileResponse user = userRepo.findAllUserProfileById(userId);
@@ -54,7 +56,19 @@ public class UserService {
         if(!isAdmin(userId))
             throw new ForbiddenException("Only admins can create users");
 
-        User newUser = new User(data.getName(), data.getEmail(), data.getRole());
+        User user = userRepo.findByEmail(data.getEmail());
+
+        if(user != null){
+            throw new UserAlreadyExistsException(
+                    "User with email: " + data.getEmail() + " already exists");
+        }
+
+        User newUser = new User(
+                data.getName(),
+                data.getEmail(),
+                data.getRole(),
+                passwordEncoder.encode(data.getPassword()));
+
         userRepo.save(newUser);
         return convertToDto(newUser);
     }
@@ -63,7 +77,14 @@ public class UserService {
     public void bulkCreateUsers(List<CreateUserRequest> data){
         List<User> users = data.stream()
                         .map(d -> {
-                            return new User(d.getName(), d.getEmail(), d.getRole());
+                            User user = userRepo.findByEmail(d.getEmail());
+
+                            if(user != null){
+                                throw new UserAlreadyExistsException(
+                                        "User with email: " + d.getEmail() + " already exists");
+                            }
+
+                            return new User(d.getName(), d.getEmail(), d.getRole(), passwordEncoder.encode(d.getPassword()));
                         })
                         .toList();
         userRepo.saveAll(users);

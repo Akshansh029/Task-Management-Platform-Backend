@@ -1,14 +1,15 @@
 package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
+import com.akshansh.taskmanagementplatform.dto.request.LoginRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import com.akshansh.taskmanagementplatform.service.AuthService;
+import com.akshansh.taskmanagementplatform.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,24 +17,22 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(
-//            @Valid @RequestBody CreateUserRequest request
-            @RequestParam String rawPassword
+    public ResponseEntity<UserProfileResponse> registerUser(
+            @Valid @RequestBody CreateUserRequest request
     ){
-//        UserProfileResponse newUser = authService.registerUser(request);
-        String encryptedPassword = passwordEncoder.encode(rawPassword);
-        return ResponseEntity.status(HttpStatus.OK).body(encryptedPassword);
+        UserProfileResponse newUser = authService.registerUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
     @PostMapping("/login")
     public ResponseEntity<Void> loginUser(
-            @Valid @RequestBody CreateUserRequest request
+            @Valid @RequestBody LoginRequest request
     ){
-//        UserProfileResponse newUser = authService.registerUser(request);
+        authService.loginUser(request);
         return ResponseEntity.noContent().build();
     }
 }

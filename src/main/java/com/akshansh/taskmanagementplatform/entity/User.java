@@ -68,13 +68,14 @@ public class User {
     @ToString.Exclude
     private Set<Project> projects = new HashSet<>();
 
-    public User(String name, String email, UserRole role){
+    public User(String name, String email, UserRole role, String password){
         if(name.isEmpty() || email.isEmpty() || role == null){
             throw new ValidationException("All fields required");
         }
         this.name = name;
         this.email = email;
         this.role = role;
+        this.password = password;
         this.createdAt = LocalDateTime.now();
     }
 
