@@ -36,7 +36,7 @@ public class User {
     private String email;
 
     @NotNull(message = "Password is required")
-    @Size(max = 50, message = "Password can be max 50 characters")
+    @Size(max = 250, message = "Password can be max 250 characters")
     @Column(nullable = false)
     private String password;
 

@@ -4,12 +4,12 @@ import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.LoginRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
-import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
-import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
-import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
+import com.akshansh.taskmanagementplatform.entity.UserRole;
+import com.akshansh.taskmanagementplatform.exception.*;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +31,10 @@ public class AuthService {
                     "User with email: " + request.getEmail() + " already exists");
         }
 
+        if(!EnumUtils.isValidEnum(UserRole.class, request.getRole().toString())){
+            throw new InvalidEnumValueException("Given role is not a valid UserRole");
+        }
+
         User newUser = new User(
                 request.getName(),
                 request.getEmail(),
@@ -41,7 +45,7 @@ public class AuthService {
         return convertToDto(newUser);
     }
 
-    public void loginUser(@Valid LoginRequest request) {
+    public String loginUser(@Valid LoginRequest request) {
         User user = userRepo.findByEmail(request.getEmail());
 
         if(user == null){
@@ -49,7 +53,9 @@ public class AuthService {
         }
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new
+            throw new WrongPasswordException("Given password is wrong");
         }
+
+        return "Login successful";
     }
 }
