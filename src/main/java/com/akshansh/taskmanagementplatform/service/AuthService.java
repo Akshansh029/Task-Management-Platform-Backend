@@ -10,6 +10,9 @@ import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.EnumUtils;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ import static com.akshansh.taskmanagementplatform.entity.User.convertToDto;
 public class AuthService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public UserProfileResponse registerUser(@Valid CreateUserRequest request) {
@@ -46,16 +50,23 @@ public class AuthService {
     }
 
     public String loginUser(@Valid LoginRequest request) {
-        User user = userRepo.findByEmail(request.getEmail());
+        // Authenticate email and password
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
 
-        if(user == null){
-            throw new ResourceNotFoundException("No user found with email: " + request.getEmail());
-        }
 
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new WrongPasswordException("Given password is wrong");
-        }
 
-        return "Login successful";
+//        User user = userRepo.findByEmail(request.getEmail());
+//
+//        if(user == null){
+//            throw new ResourceNotFoundException("No user found with email: " + request.getEmail());
+//        }
+//
+//        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+//            throw new WrongPasswordException("Given password is wrong");
+//        }
+//
+//        return "Login successful";
     }
 }

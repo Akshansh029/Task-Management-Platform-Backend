@@ -24,6 +24,7 @@ public class WebSecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
+    // AuthProvider
     @Bean
     public AuthenticationProvider authProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
