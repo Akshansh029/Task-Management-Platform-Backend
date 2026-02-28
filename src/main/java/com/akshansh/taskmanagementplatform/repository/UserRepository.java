@@ -49,7 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse(" +
             "u.id, u.name, u.email, u.role, u.createdAt, SIZE(u.ownedProjects)) " +
             "FROM User u WHERE u.id = ?1")
-    UserProfileResponse findAllUserProfileById(Long userId);
+    UserProfileResponse findUserProfileById(Long userId);
 
     // Create User
     @Override

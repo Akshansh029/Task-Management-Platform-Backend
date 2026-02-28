@@ -40,7 +40,7 @@ public class JwtUtil {
     public String generateToken(UserPrincipal principal){
         return Jwts.builder()
                 .issuer(jwtIssuer)
-                .subject(principal.getUserId())
+                .subject(principal.getUserId().toString())
                 .claim("userName", principal.getName())
                 .claim("email", principal.getUsername())
                 .claim("role", principal.getAuthorities()

@@ -5,16 +5,21 @@ import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRoleRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
+import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
+import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,11 +36,11 @@ public class UserService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
 
-
-    public boolean isAdmin(Long userId){
-        UserProfileResponse user = userRepo.findAllUserProfileById(userId);
-        return user != null && user.getRole() == UserRole.ADMIN;
+    public UserPrincipal getCurrentUser(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (UserPrincipal) auth.getPrincipal();
     }
+
 
     public Page<UserProfileResponse> getAllUsers(int pageNo, int pageSize, String search){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
@@ -48,14 +53,11 @@ public class UserService {
     }
 
     public UserProfileResponse getUserProfileById(Long userId){
-        return userRepo.findAllUserProfileById(userId);
+        return userRepo.findUserProfileById(userId);
     }
 
     @Transactional
-    public UserProfileResponse createUser(Long userId, CreateUserRequest data){
-        if(!isAdmin(userId))
-            throw new ForbiddenException("Only admins can create users");
-
+    public UserProfileResponse createUser(CreateUserRequest data){
         User user = userRepo.findByEmail(data.getEmail());
 
         if(user != null){
@@ -91,9 +93,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfileResponse updateUser(Long userId, Long id, UpdateUserRequest data){
-        if (!isAdmin(userId) && !userId.equals(id)){
-            throw new ForbiddenException("Only admins and users can update their profile");
+    public UserProfileResponse updateUser(Long id, UpdateUserRequest data){
+        // Check if current user is update profile or not
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(!id.equals(currentUser.getUserId())){
+            throw new ForbiddenException("Only admins or user themselves can update their profile");
         }
 
         User user = userRepo.findById(id)
@@ -126,10 +131,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId, Long id){
-        if(!isAdmin(userId))
-            throw new ForbiddenException("Only admins can delete users");
-
+    public void deleteUser(Long id){
         userRepo.deleteById(id);
     }
 }

@@ -9,6 +9,7 @@ import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.ValidationException;
 import com.akshansh.taskmanagementplatform.service.UserService;
+import io.jsonwebtoken.Jwt;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -83,11 +85,10 @@ public class UserController {
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserProfileResponse> createUser(
-            @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateUserRequest request
     ){
 
-        UserProfileResponse created = userService.createUser(userId, request);
+        UserProfileResponse created = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -102,14 +103,12 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @PutMapping("/{id}")
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserProfileResponse> updateUser(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request
     ){
-        
-        UserProfileResponse updated = userService.updateUser(userId, id, request);
+        UserProfileResponse updated = userService.updateUser(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
@@ -126,7 +125,6 @@ public class UserController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserProfileResponse> updateUserRole(
-//            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id,
             @RequestBody UpdateUserRoleRequest request
     ){
@@ -148,7 +146,7 @@ public class UserController {
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id
     ){
-        userService.deleteUser(userId, id);
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -163,14 +161,10 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @PostMapping("/bulk-create")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> bulkUserCreation(
-            @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody List<CreateUserRequest> users
     ){
-        UserProfileResponse user = userService.getUserProfileById(userId);
-        if(user.getRole() != UserRole.ADMIN){
-            throw new ForbiddenException("Only admins can create users");
-        }
         userService.bulkCreateUsers(users);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

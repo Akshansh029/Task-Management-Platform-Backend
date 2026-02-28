@@ -33,7 +33,7 @@ public class ProjectService {
     }
 
     public boolean isNotOwnerOrAdmin(Long userId, Long projectId){
-        UserProfileResponse user = userRepo.findAllUserProfileById(userId);
+        UserProfileResponse user = userRepo.findUserProfileById(userId);
         Project prj = projectRepo.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project with ID: " + projectId + " not found"));
 
@@ -42,7 +42,7 @@ public class ProjectService {
     }
 
     public boolean isViewer(Long userId){
-        UserProfileResponse user = userRepo.findAllUserProfileById(userId);
+        UserProfileResponse user = userRepo.findUserProfileById(userId);
 
         return user.getRole() == UserRole.VIEWER;
     }
