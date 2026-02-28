@@ -7,12 +7,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
@@ -63,13 +66,8 @@ public class JwtUtil {
         try{
             Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token);
             return true;
-        } catch (ExpiredJwtException e){
-            log.warn("JWT token is expired: {}", e.getMessage());
-        } catch (MalformedJwtException e){
-            log.warn("JWT token is malformed: {}", e.getMessage());
         } catch (JwtException e){
-            log.warn("JWT token is invalid: {}", e.getMessage());
+            return false;
         }
-        return false;
     }
 }

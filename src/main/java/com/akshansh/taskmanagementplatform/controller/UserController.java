@@ -143,7 +143,6 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteUser(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id
     ){
         userService.deleteUser(id);
