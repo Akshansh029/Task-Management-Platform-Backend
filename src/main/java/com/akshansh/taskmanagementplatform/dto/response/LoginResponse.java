@@ -1,18 +1,13 @@
 package com.akshansh.taskmanagementplatform.dto.response;
 
-import com.akshansh.taskmanagementplatform.entity.UserRole;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @Data
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class LoginResponse {
-    private String jwt;
-    private Long userId;
-    private String username;
-    private String email;
-    private UserRole role;
-    private LocalDateTime createdAt;
+    private String message;
+    private String token;
 }

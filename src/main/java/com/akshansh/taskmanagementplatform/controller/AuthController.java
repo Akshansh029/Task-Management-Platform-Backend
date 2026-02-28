@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.LoginRequest;
+import com.akshansh.taskmanagementplatform.dto.response.LoginResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import com.akshansh.taskmanagementplatform.service.AuthService;
@@ -31,10 +32,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(
+    public ResponseEntity<LoginResponse> loginUser(
             @Valid @RequestBody LoginRequest request
     ){
-        String msg = authService.loginUser(request);
-        return ResponseEntity.status(HttpStatus.OK).body(msg);
+        com.akshansh.taskmanagementplatform.dto.response.LoginResponse response = authService.loginUser(request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
