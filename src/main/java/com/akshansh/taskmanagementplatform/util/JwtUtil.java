@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.util;
 
 import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -47,5 +48,19 @@ public class JwtUtil {
                 .expiration(new Date(System.currentTimeMillis() + EXPIRY_MS))
                 .signWith(getSecretKey())
                 .compact();
+    }
+
+    public String extractEmail(String token){
+        return Jwts.parser().verifyWith(getSecretKey()).build()
+                .parseSignedClaims(token).getPayload().getSubject();
+    }
+
+    public boolean isTokenValid(String token){
+        try{
+            Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token);
+            return true;
+        } catch (JwtException e){
+            return false;
+        }
     }
 }
