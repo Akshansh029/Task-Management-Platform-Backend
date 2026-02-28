@@ -4,6 +4,7 @@ target/
 !**/src/test/**/target/
 
 src/main/resources/application.properties
+src/main/resources/application-dev.properties
 
 Task_Management_Platform_PRD.docx
 ~$sk_Management_Platform_PRD.docx
