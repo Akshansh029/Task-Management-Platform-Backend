@@ -81,7 +81,7 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserProfileResponse> createUser(
             @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateUserRequest request
@@ -124,7 +124,7 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserProfileResponse> updateUserRole(
 //            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id,
@@ -143,7 +143,7 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteUser(
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id
