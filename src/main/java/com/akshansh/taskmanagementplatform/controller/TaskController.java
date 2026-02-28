@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateTaskRequest;
+import com.akshansh.taskmanagementplatform.dto.request.GetProjectIdRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateTaskStatusRequest;
 import com.akshansh.taskmanagementplatform.dto.response.TaskByIdResponse;
@@ -45,10 +46,9 @@ public class TaskController {
     })
     @PostMapping("/projects/tasks")
     public ResponseEntity<TaskResponse> createTask(
-            @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateTaskRequest request
     ){
-        TaskResponse created = taskService.createTask(userId, request);
+        TaskResponse created = taskService.createTask(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -63,12 +63,10 @@ public class TaskController {
     })
     @GetMapping("/tasks")
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
-            @RequestHeader("X-User-ID") Long userId,
-            @RequestHeader("X-Project-ID") Long projectId,
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize
     ){
-        Page<TaskResponse> tasks = taskService.getAllTasks(userId, projectId, pageNo, pageSize);
+        Page<TaskResponse> tasks = taskService.getAllTasks(pageNo, pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(tasks);
     }
 
@@ -83,11 +81,10 @@ public class TaskController {
     })
     @GetMapping("/tasks/{taskId}")
     public ResponseEntity<TaskByIdResponse> getTaskById(
-            @RequestHeader("X-User-ID") Long userId,
-            @RequestHeader("X-Project-ID") Long projectId,
-            @PathVariable Long taskId
-    ){
-        TaskByIdResponse task = taskService.getTaskById(userId, projectId, taskId);
+            @PathVariable Long taskId,
+            @Valid @RequestBody GetProjectIdRequest request
+            ){
+        TaskByIdResponse task = taskService.getTaskById(request.getProjectId(), taskId);
         return ResponseEntity.status(HttpStatus.OK).body(task);
     }
 
@@ -103,10 +100,9 @@ public class TaskController {
     })
     @GetMapping("/projects/{projectId}/tasks")
     public ResponseEntity<List<TaskResponse>> getAllTasksByProjectId(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId
     ){
-        List<TaskResponse> tasksByProject = taskService.getAllTasksByProjectId(userId, projectId);
+        List<TaskResponse> tasksByProject = taskService.getAllTasksByProjectId(projectId);
         return ResponseEntity.status(HttpStatus.OK).body(tasksByProject);
     }
 
@@ -122,12 +118,11 @@ public class TaskController {
     })
     @GetMapping("/assignee/{assigneeId}/tasks")
     public ResponseEntity<List<TaskResponse>> getAllTasksByAssigneeId(
-            @RequestHeader("X-User-ID") Long userId,
-            @RequestHeader("X-Project-ID") Long projectId,
+            @Valid @RequestBody GetProjectIdRequest request,
             @PathVariable Long assigneeId
     ){
         List<TaskResponse> tasksForAssignee =
-                taskService.getAllTasksByAssigneeId(userId, projectId, assigneeId);
+                taskService.getAllTasksByAssigneeId(request.getProjectId(), assigneeId);
 
         return ResponseEntity.status(HttpStatus.OK).body(tasksForAssignee);
     }
@@ -144,11 +139,10 @@ public class TaskController {
     })
     @PutMapping("/tasks/{taskId}")
     public ResponseEntity<TaskResponse> updateTask(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long taskId,
             @Valid @RequestBody UpdateTaskRequest request)
     {
-        TaskResponse updated = taskService.updateTask(userId, taskId, request);
+        TaskResponse updated = taskService.updateTask(taskId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
@@ -183,11 +177,10 @@ public class TaskController {
     })
     @PatchMapping("/tasks/{taskId}/status")
     public ResponseEntity<Void> updateTaskStatus(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long taskId,
             @Valid @RequestBody UpdateTaskStatusRequest request
     ){
-        taskService.updateTaskStatus(userId, taskId, request);
+        taskService.updateTaskStatus(taskId, request);
         return ResponseEntity.noContent().build();
     }
 
@@ -202,11 +195,10 @@ public class TaskController {
     })
     @DeleteMapping("/tasks/{taskId}")
     public ResponseEntity<Void> deleteTask(
-            @RequestHeader("X-User-ID") Long userId,
-            @RequestHeader("X-Project-ID") Long projectId,
+            @Valid @RequestBody GetProjectIdRequest request,
             @PathVariable Long taskId
     ){
-        taskService.deleteTask(userId, projectId, taskId);
+        taskService.deleteTask(request.getProjectId(), taskId);
         return ResponseEntity.noContent().build();
     }
 }

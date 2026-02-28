@@ -8,6 +8,7 @@ import com.akshansh.taskmanagementplatform.dto.response.TaskResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.entity.Task;
 import com.akshansh.taskmanagementplatform.entity.User;
+import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
 import com.akshansh.taskmanagementplatform.exception.InvalidTaskDueDate;
 import org.springframework.data.domain.Page;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
@@ -27,6 +28,7 @@ import java.util.Objects;
 
 import static com.akshansh.taskmanagementplatform.dto.response.TaskResponse.convertToDto;
 import static com.akshansh.taskmanagementplatform.entity.Task.convertToTaskByIdDto;
+import static com.akshansh.taskmanagementplatform.util.UserUtil.getCurrentUser;
 
 @Service
 public class TaskService {
@@ -48,12 +50,15 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskResponse createTask(Long userId, CreateTaskRequest request){
-        if(!projectService.isProjectMember(userId, request.getProjectId())){
+    public TaskResponse createTask(CreateTaskRequest request){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(!projectService.isProjectMember(currentUser.getUserId(), request.getProjectId())){
             throw new ForbiddenException("Only project members can create tasks");
         }
 
-        User creator = userRepo.findById(userId).get();
+        User creator = userRepo.findById(currentUser.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + currentUser.getUserId() + " not found"));
 
         Project prj = projectRepo.findById(request.getProjectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Project with ID: " + request.getProjectId() + " not found"));
@@ -78,17 +83,15 @@ public class TaskService {
         return convertToDto(newTask);
     }
 
-    public Page<TaskResponse> getAllTasks(Long userId, Long projectId, int pageNo, int pageSize){
-        if(!projectService.isProjectMember(userId, projectId)){
-            throw new ForbiddenException("Only project members can view tasks");
-        }
-
+    public Page<TaskResponse> getAllTasks(int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         return taskRepo.findAllTasks(pageable);
     }
 
-    public TaskByIdResponse getTaskById(Long userId, Long projectId, Long taskId){
-        if(!projectService.isProjectMember(userId, projectId)){
+    public TaskByIdResponse getTaskById(Long projectId, Long taskId){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(!projectService.isProjectMember(currentUser.getUserId(), projectId)){
             throw new ForbiddenException("Only project members can view tasks");
         }
 
@@ -97,8 +100,10 @@ public class TaskService {
         return convertToTaskByIdDto(task);
     }
 
-    public List<TaskResponse> getAllTasksByAssigneeId(Long userId, Long projectId, Long assigneeId){
-        if(!projectService.isProjectMember(userId, projectId)){
+    public List<TaskResponse> getAllTasksByAssigneeId(Long projectId, Long assigneeId){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(!projectService.isProjectMember(currentUser.getUserId(), projectId)){
             throw new ForbiddenException("Only project members can view tasks");
         }
 
@@ -107,8 +112,10 @@ public class TaskService {
         return taskRepo.findAllByAssignee_Id(assigneeId);
     }
 
-    public List<TaskResponse> getAllTasksByProjectId(Long userId, Long projectId){
-        if(!projectService.isProjectMember(userId, projectId)){
+    public List<TaskResponse> getAllTasksByProjectId(Long projectId){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(!projectService.isProjectMember(currentUser.getUserId(), projectId)){
             throw new ForbiddenException("Only project members can view tasks");
         }
 
@@ -118,8 +125,10 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskResponse updateTask(Long userId, Long taskId, UpdateTaskRequest request){
-        if(projectService.isNotOwnerOrAdmin(userId, request.getProjectId())){
+    public TaskResponse updateTask(Long taskId, UpdateTaskRequest request){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(projectService.isNotOwnerOrAdmin(currentUser.getUserId(), request.getProjectId())){
             throw new ForbiddenException("Only admin/project owner can update tasks");
         }
 
@@ -164,12 +173,14 @@ public class TaskService {
     }
 
     @Transactional
-    public void updateTaskStatus(Long userId, Long taskId, UpdateTaskStatusRequest request) {
+    public void updateTaskStatus(Long taskId, UpdateTaskStatusRequest request) {
+        UserPrincipal currentUser = getCurrentUser();
+
         Task task = taskRepo.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task with ID: " + taskId + " not found"));
 
         // Check for assignee
-        if(!task.getAssignee().getId().equals(userId)){
+        if(!task.getAssignee().getId().equals(currentUser.getUserId())){
             throw new ForbiddenException("Only task assignee can update task status");
         }
 
@@ -178,8 +189,10 @@ public class TaskService {
     }
 
     @Transactional
-    public void deleteTask(Long userId, Long projectId, Long taskId){
-        if(projectService.isNotOwnerOrAdmin(userId, projectId)){
+    public void deleteTask(Long projectId, Long taskId){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(projectService.isNotOwnerOrAdmin(currentUser.getUserId(), projectId)){
             throw new ForbiddenException("Only admin/project owner can delete tasks");
         }
         taskRepo.deleteById(taskId);
