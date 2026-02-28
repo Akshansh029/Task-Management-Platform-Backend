@@ -1,10 +1,13 @@
 package com.akshansh.taskmanagementplatform.util;
 
 import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -14,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtUtil {
     @Value("${jwt.secret-key}")
     private String jwtSecretKey;
@@ -52,15 +56,20 @@ public class JwtUtil {
 
     public String extractEmail(String token){
         return Jwts.parser().verifyWith(getSecretKey()).build()
-                .parseSignedClaims(token).getPayload().getSubject();
+                .parseSignedClaims(token).getPayload().get("email").toString();
     }
 
     public boolean isTokenValid(String token){
         try{
             Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token);
             return true;
+        } catch (ExpiredJwtException e){
+            log.warn("JWT token is expired: {}", e.getMessage());
+        } catch (MalformedJwtException e){
+            log.warn("JWT token is malformed: {}", e.getMessage());
         } catch (JwtException e){
-            return false;
+            log.warn("JWT token is invalid: {}", e.getMessage());
         }
+        return false;
     }
 }

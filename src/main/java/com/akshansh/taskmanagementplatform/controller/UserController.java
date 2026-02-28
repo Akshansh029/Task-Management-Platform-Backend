@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -80,6 +81,7 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserProfileResponse> createUser(
             @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateUserRequest request
@@ -100,6 +102,7 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @PutMapping("/{id}")
+
     public ResponseEntity<UserProfileResponse> updateUser(
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id,
@@ -121,13 +124,14 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserProfileResponse> updateUserRole(
-            @RequestHeader("X-User-ID") Long userId,
+//            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id,
             @RequestBody UpdateUserRoleRequest request
     ){
         
-        UserProfileResponse updatedRole = userService.updateUserRole(userId, id, request);
+        UserProfileResponse updatedRole = userService.updateUserRole(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedRole);
     }
 
@@ -139,6 +143,7 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(
             @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long id

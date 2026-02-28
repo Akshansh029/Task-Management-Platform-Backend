@@ -113,9 +113,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfileResponse updateUserRole(Long userId, Long id, UpdateUserRoleRequest request){
-        if(!isAdmin(userId))
-            throw new ForbiddenException("Only admins can update user role");
+    public UserProfileResponse updateUserRole(Long id, UpdateUserRoleRequest request){
+//        if(!isAdmin(userId))
+//            throw new ForbiddenException("Only admins can update user role");
 
         User user = userRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + id + " not found"));
