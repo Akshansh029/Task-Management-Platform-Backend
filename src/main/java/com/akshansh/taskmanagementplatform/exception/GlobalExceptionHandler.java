@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.exception;
 
 import com.akshansh.taskmanagementplatform.dto.ErrorResponse;
 import com.akshansh.taskmanagementplatform.dto.ValidationErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import java.nio.file.AccessDeniedException;
+import java.security.SignatureException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -142,6 +145,36 @@ public class GlobalExceptionHandler {
                 request.getDescription(false)
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse> handleTokenExpired(ExpiredJwtException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.FORBIDDEN.value(),
+                "Authentication token expired",
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidSignature(SignatureException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.FORBIDDEN.value(),
+                "Invalid JWT signature! Check the JWT token or authenticate again",
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.FORBIDDEN.value(),
+                "Access denied: You do not have permission to access this resource.",
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

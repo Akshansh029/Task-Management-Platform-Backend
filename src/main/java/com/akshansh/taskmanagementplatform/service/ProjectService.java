@@ -7,6 +7,7 @@ import com.akshansh.taskmanagementplatform.dto.response.ProjectResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.Project;
 import com.akshansh.taskmanagementplatform.entity.User;
+import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
@@ -21,6 +22,7 @@ import java.util.Objects;
 
 import static com.akshansh.taskmanagementplatform.dto.response.ProjectDetailsResponse.convertToDetailedDto;
 import static com.akshansh.taskmanagementplatform.entity.Project.convertToDto;
+import static com.akshansh.taskmanagementplatform.util.UserUtil.getCurrentUser;
 
 @Service
 public class ProjectService {
@@ -57,9 +59,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponse createProject(Long userId, CreateProjectRequest request){
-        if(isViewer(userId))
-            throw new ForbiddenException("Only admins and members can create projects");
+    public ProjectResponse createProject(CreateProjectRequest request){
 
         User u = userRepo.findById(request.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -87,8 +87,10 @@ public class ProjectService {
         return projectRepo.findAllProjects(search, pageable);
     }
 
-    public ProjectDetailsResponse getProjectById(Long userId, Long projectId){
-        if(!isProjectMember(userId, projectId))
+    public ProjectDetailsResponse getProjectById(Long projectId){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(!isProjectMember(currentUser.getUserId(), projectId))
             throw new ForbiddenException("Only project members can view project details");
 
         Project prj = projectRepo.findById(projectId)
@@ -97,9 +99,11 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponse updateProject(Long userId, Long projectId, UpdateProjectRequest request){
-        if(isNotOwnerOrAdmin(userId, projectId))
-            throw new ForbiddenException("Only admins/owner can update projects");
+    public ProjectResponse updateProject(Long projectId, UpdateProjectRequest request){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(isNotOwnerOrAdmin(currentUser.getUserId(), projectId))
+            throw new ForbiddenException("Only admins or owner can update projects");
 
         Project prj = projectRepo.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
@@ -123,11 +127,13 @@ public class ProjectService {
     }
 
     @Transactional
-    public void addMemberToProject(Long userId, Long projectId, Long memberId){
-        if(isNotOwnerOrAdmin(userId, projectId))
+    public void addMemberToProject(Long projectId, Long memberId){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(isNotOwnerOrAdmin(currentUser.getUserId(), projectId))
             throw new ForbiddenException("Only admins/owner can update projects");
 
-        User u = userRepo.findById(userId)
+        User u = userRepo.findById(currentUser.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + memberId + " not found"));
 
         Project p = projectRepo.findById(projectId)
@@ -140,8 +146,10 @@ public class ProjectService {
     }
 
     @Transactional
-    public void addMembersToProject(Long userId, Long projectId, List<Long> memberIds){
-        if(isNotOwnerOrAdmin(userId, projectId))
+    public void addMembersToProject(Long projectId, List<Long> memberIds){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(isNotOwnerOrAdmin(currentUser.getUserId(), projectId))
             throw new ForbiddenException("Only admins/owner can update projects");
 
         Project p = projectRepo.findById(projectId)
@@ -158,8 +166,10 @@ public class ProjectService {
     }
 
     @Transactional
-    public void removeMemberFromProject(Long userId, Long projectId, Long memberId){
-        if(isNotOwnerOrAdmin(userId, projectId))
+    public void removeMemberFromProject(Long projectId, Long memberId){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(isNotOwnerOrAdmin(currentUser.getUserId(), projectId))
             throw new ForbiddenException("Only admins/owner can update projects");
 
         User u = userRepo.findById(memberId)
@@ -189,8 +199,10 @@ public class ProjectService {
     }
 
     @Transactional
-    public void deleteProject(Long userId, Long projectId){
-        if(isNotOwnerOrAdmin(userId, projectId))
+    public void deleteProject(Long projectId){
+        UserPrincipal currentUser = getCurrentUser();
+
+        if(isNotOwnerOrAdmin(currentUser.getUserId(), projectId))
             throw new ForbiddenException("Only admins/owner can update projects");
 
         projectRepo.deleteById(projectId);

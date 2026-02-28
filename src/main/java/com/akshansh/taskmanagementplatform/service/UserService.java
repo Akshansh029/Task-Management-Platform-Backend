@@ -29,18 +29,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.akshansh.taskmanagementplatform.entity.User.convertToDto;
+import static com.akshansh.taskmanagementplatform.util.UserUtil.getCurrentUser;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
-
-    public UserPrincipal getCurrentUser(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (UserPrincipal) auth.getPrincipal();
-    }
-
 
     public Page<UserProfileResponse> getAllUsers(int pageNo, int pageSize, String search){
         Pageable pageable = PageRequest.of(pageNo, pageSize);

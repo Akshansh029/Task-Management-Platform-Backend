@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,12 +44,11 @@ public class ProjectController {
                     content = @Content(schema = @Schema()))
     })
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MEMBER')")
     public ResponseEntity<ProjectResponse> createProject(
-            @RequestHeader("X-User-ID") Long userId,
             @Valid @RequestBody CreateProjectRequest request
     ){
-        
-        ProjectResponse created = projectService.createProject(userId, request);
+        ProjectResponse created = projectService.createProject(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -80,10 +80,9 @@ public class ProjectController {
     })
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectDetailsResponse> getProjectById(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId
     ){
-        ProjectDetailsResponse prjById = projectService.getProjectById(userId, projectId);
+        ProjectDetailsResponse prjById = projectService.getProjectById(projectId);
         return ResponseEntity.status(HttpStatus.OK).body(prjById);
     }
 
@@ -99,12 +98,11 @@ public class ProjectController {
     })
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> updateProject(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId,
             @Valid @RequestBody UpdateProjectRequest request)
     {
         
-        ProjectResponse updated = projectService.updateProject(userId, projectId, request);
+        ProjectResponse updated = projectService.updateProject(projectId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
@@ -119,11 +117,10 @@ public class ProjectController {
     })
     @PostMapping("/{projectId}/members/{memberId}")
     public ResponseEntity<Void> addProjectMember(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ){
-            projectService.addMemberToProject(userId, projectId, memberId);
+            projectService.addMemberToProject(projectId, memberId);
             return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -138,11 +135,10 @@ public class ProjectController {
     })
     @DeleteMapping("/{projectId}/members/{memberId}")
     public ResponseEntity<Void> removeProjectMember(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ){
-            projectService.removeMemberFromProject(userId, projectId, memberId);
+            projectService.removeMemberFromProject(projectId, memberId);
             return ResponseEntity.noContent().build();
     }
 
@@ -158,11 +154,10 @@ public class ProjectController {
     })
     @PostMapping("/{projectId}/members")
     public ResponseEntity<Page<UserProfileResponse>> addProjectMembers(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId,
             @RequestBody List<Long> memberIds
     ){
-        projectService.addMembersToProject(userId, projectId, memberIds);
+        projectService.addMembersToProject(projectId, memberIds);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -193,11 +188,9 @@ public class ProjectController {
     })
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Void> deleteProject(
-            @RequestHeader("X-User-ID") Long userId,
             @PathVariable Long projectId
     ){
-        
-        projectService.deleteProject(userId, projectId);
+        projectService.deleteProject(projectId);
         return ResponseEntity.noContent().build();
     }
 }
