@@ -3,6 +3,7 @@ package com.akshansh.taskmanagementplatform.service;
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRoleRequest;
+import com.akshansh.taskmanagementplatform.dto.response.ActiveUserResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
@@ -128,5 +129,11 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id){
         userRepo.deleteById(id);
+    }
+
+    public ActiveUserResponse getActiveUserDetails() {
+        UserPrincipal currentUser = getCurrentUser();
+
+        return userRepo.findActiveUserDetails(currentUser.getUserId());
     }
 }

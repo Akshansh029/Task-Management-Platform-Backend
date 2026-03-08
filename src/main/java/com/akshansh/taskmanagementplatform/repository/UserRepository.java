@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.repository;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
+import com.akshansh.taskmanagementplatform.dto.response.ActiveUserResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import org.springframework.data.domain.Page;
@@ -59,4 +60,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void deleteUserById(Long userId);
 
     User findByEmail(String email);
+
+    // Get Active User Details
+    @Query("SELECT new com.akshansh.taskmanagementplatform.dto.response.ActiveUserResponse(" +
+            "u.id, u.name, u.email, u.role, u.createdAt, SIZE(u.ownedProjects), SIZE(u.assignedTasks), " +
+            "SIZE(u.projects)) " +
+            "FROM User u WHERE u.id = :userId")
+    ActiveUserResponse findActiveUserDetails(Long userId);
 }

@@ -3,6 +3,7 @@ package com.akshansh.taskmanagementplatform.controller;
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRoleRequest;
+import com.akshansh.taskmanagementplatform.dto.response.ActiveUserResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
@@ -147,6 +148,20 @@ public class UserController {
     ){
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(summary = "Get Current User Details", description = "Get current user's details from the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User details fetched successfully",
+                    content = @Content(schema = @Schema(implementation = ActiveUserResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthenticated user",
+                    content = @Content(schema = @Schema()))
+    })
+    @GetMapping("/me")
+    public ResponseEntity<ActiveUserResponse> getActiveUserDetails(){
+        ActiveUserResponse userDetails = userService.getActiveUserDetails();
+        return ResponseEntity.status(HttpStatus.OK).body(userDetails);
     }
 
 
