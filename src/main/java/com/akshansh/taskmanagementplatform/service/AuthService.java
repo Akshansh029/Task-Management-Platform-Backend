@@ -41,14 +41,14 @@ public class AuthService {
                     "User with email: " + request.getEmail() + " already exists");
         }
 
-        if(!EnumUtils.isValidEnum(UserRole.class, request.getRole().toString())){
-            throw new InvalidEnumValueException("Given role is not a valid UserRole");
-        }
+//        if(!EnumUtils.isValidEnum(UserRole.class, request.getRole().toString())){
+//            throw new InvalidEnumValueException("Given role is not a valid UserRole");
+//        }
 
         User newUser = new User(
                 request.getName(),
                 request.getEmail(),
-                request.getRole(),
+                UserRole.VIEWER,
                 passwordEncoder.encode(request.getPassword()));
 
         userRepo.save(newUser);

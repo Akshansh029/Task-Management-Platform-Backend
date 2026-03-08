@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.akshansh.taskmanagementplatform.dto.response.CommentResponse.convertToDto;
+import static com.akshansh.taskmanagementplatform.util.UserUtil.getCurrentUser;
 
 @Service
 public class CommentService {
@@ -94,16 +95,18 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long userId, Long commentId) {
+    public void deleteComment(Long commentId) {
+        UserPrincipal currentUser = getCurrentUser();
+
         Comment comment = commentRepo.findById(commentId)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Comment with ID: " + commentId + " not found"));
 
-        User user = userRepo.findById(userId)
+        User user = userRepo.findById(currentUser.getUserId())
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("User with ID: " + userId + " not found"));
+                        () -> new ResourceNotFoundException("User with ID: " + currentUser.getUserId() + " not found"));
 
-        if(!comment.getAuthor().equals(user) || !isAdmin(userId))
+        if(!comment.getAuthor().equals(user) || !isAdmin(currentUser.getUserId()))
             throw new ForbiddenException("Only admin and comment author can delete comment");
 
         commentRepo.deleteById(commentId);

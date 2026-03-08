@@ -25,6 +25,6 @@ public class CreateUserRequest {
     @Size(max = 50, message = "Password can be max 50 characters")
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+//    @Enumerated(EnumType.STRING)
+//    private UserRole role;
 }
