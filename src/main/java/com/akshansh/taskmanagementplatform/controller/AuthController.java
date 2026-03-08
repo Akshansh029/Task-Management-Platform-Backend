@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.LoginRequest;
+import com.akshansh.taskmanagementplatform.dto.request.RegisterUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.LoginResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.service.AuthService;
@@ -33,7 +34,7 @@ public class AuthController {
     })
     @PostMapping("/register")
     public ResponseEntity<UserProfileResponse> registerUser(
-            @Valid @RequestBody CreateUserRequest request
+            @Valid @RequestBody RegisterUserRequest request
     ){
         UserProfileResponse newUser = authService.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);

@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.LoginRequest;
+import com.akshansh.taskmanagementplatform.dto.request.RegisterUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.LoginResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
@@ -33,7 +34,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public UserProfileResponse registerUser(@Valid CreateUserRequest request) {
+    public UserProfileResponse registerUser(@Valid RegisterUserRequest request) {
         User user = userRepo.findByEmail(request.getEmail());
 
         if(user != null){
