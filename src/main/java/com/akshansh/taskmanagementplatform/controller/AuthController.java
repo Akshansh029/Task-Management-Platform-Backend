@@ -12,12 +12,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/auth")
@@ -48,9 +54,28 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> loginUser(
-            @Valid @RequestBody LoginRequest request
+            @Valid @RequestBody LoginRequest request,
+            HttpServletResponse response
     ){
-        com.akshansh.taskmanagementplatform.dto.response.LoginResponse response = authService.loginUser(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        com.akshansh.taskmanagementplatform.dto.response.LoginResponse loginResp = authService.loginUser(request);
+
+        Cookie cookie = new Cookie("refreshToken", loginResp.getRefreshToken());
+        cookie.setHttpOnly(true);       // http-only cookie
+        response.addCookie(cookie);
+
+        return ResponseEntity.status(HttpStatus.OK).body(loginResp);
+    }
+
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request){
+
+        String refreshToken = Arrays.stream(request.getCookies()) //getCookies() method returns a array of cookie
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(()-> new AuthenticationServiceException("RefreshToken not found"));
+        LoginResponse loginResponseDto = authService.refreshToken(refreshToken);
+        return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
     }
 }

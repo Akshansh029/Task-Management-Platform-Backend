@@ -63,4 +63,18 @@ public class AuthService {
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
         return new LoginResponse("Login successful", accessToken, refreshToken);
     }
+
+    public LoginResponse refreshToken(String refreshToken) {
+        Long userId = jwtUtil.generateUserIdFromToken(refreshToken);  //refresh token is valid
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + userId + " not found"));
+
+        UserPrincipal userDetails = (UserPrincipal) userDetailsService.loadUserByUsername(user.getEmail());
+
+        String accessToken = jwtUtil.generateAccessToken(userDetails);
+
+        return new LoginResponse("Token refreshed", accessToken, refreshToken);
+
+
+    }
 }
