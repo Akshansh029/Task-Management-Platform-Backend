@@ -15,6 +15,8 @@ A RESTful API for managing projects, tasks, and team collaboration built with Sp
 - **Task Tracking** — Create tasks with status (TODO, IN_PROGRESS, DONE)
 - **Collaboration** — Comment on tasks and use labels for organization
 - **RESTful API** — Clean, documented REST endpoints
+- **User Authentication** — User login/Signup using JWT Auth
+- **Role Based Access Control** - RBAC based authorization
 
 ## 🛠️ Tech Stack
 
@@ -31,16 +33,16 @@ This project uses OpenAPI 3.0 for API documentation.
 ### Interactive Documentation
 
 Access the Swagger UI for interactive API testing:
-- **Local:** http://localhost:8080/swagger-ui.html
-- **Production:** [https://task-management-platform-backend-9hc5.onrender.com/swagger-ui.html](https://task-management-platform-backend-9hc5.onrender.com/swagger-ui.html)
+- **Local:** http://localhost:8080/api/v1/swagger-ui.html
+- **Production:** [https://task-management-platform-backend-9hc5.onrender.com/api/v1/swagger-ui.html](https://task-management-platform-backend-9hc5.onrender.com/api/v1/swagger-ui.html)
 
 ![Swagger UI](Swagger-UI.png)
 
 ### OpenAPI Specification
 
 The OpenAPI spec is available at:
-- **JSON:** http://localhost:8080/v3/api-docs
-- **YAML:** http://localhost:8080/v3/api-docs.yaml
+- **JSON:** http://localhost:8080/api-docs
+- **YAML:** http://localhost:8080/api-docs.yaml
 
 ### Quick API Overview
 
@@ -59,13 +61,15 @@ See Swagger UI for complete documentation including request/response schemas and
 ## 📂 Project Structure
 ```
 src/main/java/com/akshansh/taskmanagementplatform/
+├── config/           # Configuration classes
 ├── controller/       # REST API endpoints
-├── service/          # Business logic
-├── repository/       # Data access layer
-├── entity/           # JPA entities
 ├── dto/              # Request/Response DTOs
+├── entity/           # JPA entities
 ├── exception/        # Custom exceptions & handlers
-└── config/           # Configuration classes
+├── filter/           # Custom filters
+├── repository/       # Data access layer
+├── service/          # Business logic
+└── util/             # Util classes
 ```
 
 ## 1️⃣ Getting Started
@@ -93,12 +97,9 @@ src/main/java/com/akshansh/taskmanagementplatform/
 
 3. **Configure application.properties**
 ```bash
-  spring.application.name=TaskManagementPlatform
-
-  # Database (PostgreSQL on Render)
-   spring.datasource.url="jdbc:postgresql://localhost:5432/taskmanager"
-   spring.datasource.username="postgres"
-   spring.datasource.password="your_password"
+   spring.application.name=TaskManagementPlatform
+   
+   # Database (PostgreSQL on Render)
    spring.datasource.driver-class-name=org.postgresql.Driver
    
    # JPA/Hibernate
@@ -106,6 +107,17 @@ src/main/java/com/akshansh/taskmanagementplatform/
    spring.jpa.show-sql=false
    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
    spring.jpa.properties.hibernate.format_sql=false
+   
+   # ENV variables
+   server.port=${PORT:8080}
+   jwt.secret-key=${SECRET_KEY}
+   jwt.issuer=${APP_URL:http://localhost:8080}
+   
+   # Path prefix
+   spring.mvc.servlet.path=/api/v1
+   
+   # API doc path
+   springdoc.api-docs.path=/api-docs
 ```
 
 4. **Run the application**
@@ -148,8 +160,6 @@ mvn clean package -DskipTests
 
 # Run the JAR
 java -jar target/TaskManagementPlatform-0.0.1-SNAPSHOT.jar
-
-# 
 ```
 
 ## 🌐 Deployment
@@ -158,11 +168,14 @@ The application is deployed on:
 - **Backend:** [Render.com](https://render.com)
 - **Database:** [Neon.tech](https://neon.tech)
 
-### Environment Variables (Production)
+### Environment Variables (Production on Render)
 ```
-DATABASE_URL=jdbc:postgresql://[HOST]/[DB_NAME]?sslmode=require
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
+SPRING_DATASOURCE_URL=your_database_url
+SPRING_DATASOURCE_USERNAME=your_username
+SPRING_DATASOURCE_PASSWORD=your_password
+PORT=port_number (default 8080)
+APP_URL=deployed_app_url
+SECRET_KEY=jwt_secret_key
 ```
 
 ## 🗄️ Database Schema
@@ -178,14 +191,13 @@ DB_PASSWORD=your_db_password
 
 ## 🔒 Security
 
-⚠️ **Note:** Authentication is not yet implemented. This is planned for v2.0 with Spring Security and JWT.
+This project uses **Spring Security** with **JWT authentication** and **Role-Based Access Control (RBAC)**.
 
-Current version uses a simulated "active user" approach for development.
+- **JWT Authentication** – Stateless token-based auth issued on login and validated on each request.
+- **Role-Based Access Control** – Endpoints are protected based on user roles (e.g., `ADMIN`, `USER`, `VIEWER`).
 
 ## 📌 Todo
 
-- [ ] Spring Security with JWT authentication
-- [ ] Role-based access control (RBAC)
 - [ ] Unit and integration tests
 - [ ] Activity logs / audit trail
 - [ ] Task search and filtering
