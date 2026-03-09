@@ -42,10 +42,6 @@ public class AuthService {
                     "User with email: " + request.getEmail() + " already exists");
         }
 
-//        if(!EnumUtils.isValidEnum(UserRole.class, request.getRole().toString())){
-//            throw new InvalidEnumValueException("Given role is not a valid UserRole");
-//        }
-
         User newUser = new User(
                 request.getName(),
                 request.getEmail(),
@@ -63,19 +59,8 @@ public class AuthService {
         );
 
         UserPrincipal userDetails = (UserPrincipal) userDetailsService.loadUserByUsername(request.getEmail());
-        String token = jwtUtil.generateToken(userDetails);
-        return new LoginResponse("Login successful", token);
-
-//        User user = userRepo.findByEmail(request.getEmail());
-//
-//        if(user == null){
-//            throw new ResourceNotFoundException("No user found with email: " + request.getEmail());
-//        }
-//
-//        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-//            throw new WrongPasswordException("Given password is wrong");
-//        }
-//
-//        return "Login successful";
+        String accessToken = jwtUtil.generateAccessToken(userDetails);
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+        return new LoginResponse("Login successful", accessToken, refreshToken);
     }
 }

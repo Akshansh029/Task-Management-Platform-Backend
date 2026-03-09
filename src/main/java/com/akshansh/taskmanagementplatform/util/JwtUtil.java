@@ -1,10 +1,7 @@
 package com.akshansh.taskmanagementplatform.util;
 
 import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +24,8 @@ public class JwtUtil {
     @Value("${jwt.issuer}")
     private String jwtIssuer;
 
-    private final long EXPIRY_MS = 1000 * 60 * 60;      // 1 hour
+    private final long ACCESS_EXPIRY_MS = 1000 * 60 * 10;      // 10 mins
+    private final long REFRESH_EXPIRY_MS = 1000L * 60 * 60 * 24 * 30 * 2;      // 2 months
 
     @PostConstruct
     private void validateSecret() {
@@ -40,7 +38,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(UserPrincipal principal){
+    public String generateAccessToken(UserPrincipal principal){
         return Jwts.builder()
                 .issuer(jwtIssuer)
                 .subject(principal.getUserId().toString())
@@ -52,7 +50,17 @@ public class JwtUtil {
                         .toList()
                 )
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRY_MS))
+                .expiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRY_MS))
+                .signWith(getSecretKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(UserPrincipal principal){
+        return Jwts.builder()
+                .issuer(jwtIssuer)
+                .subject(principal.getUserId().toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRY_MS))
                 .signWith(getSecretKey())
                 .compact();
     }
@@ -60,6 +68,16 @@ public class JwtUtil {
     public String extractEmail(String token){
         return Jwts.parser().verifyWith(getSecretKey()).build()
                 .parseSignedClaims(token).getPayload().get("email").toString();
+    }
+
+    public Long generateUserIdFromToken(String token) {
+        Claims claim = Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return Long.valueOf(claim.getSubject());
     }
 
     public boolean isTokenValid(String token){
