@@ -9,6 +9,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class GetProjectIdRequest {
     @NotNull(message = "Project ID is required")
-    @Size(min = 1, max = 1)
     private Long projectId;
 }

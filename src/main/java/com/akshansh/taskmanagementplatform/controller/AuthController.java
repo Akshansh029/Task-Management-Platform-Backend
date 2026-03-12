@@ -5,6 +5,7 @@ import com.akshansh.taskmanagementplatform.dto.request.LoginRequest;
 import com.akshansh.taskmanagementplatform.dto.request.RegisterUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.LoginResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
+import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -69,6 +70,9 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request){
+        if(request.getCookies() == null){
+            throw new ResourceNotFoundException("Refresh token not found in cookies");
+        }
 
         String refreshToken = Arrays.stream(request.getCookies()) //getCookies() method returns a array of cookie
                 .filter(cookie -> "refreshToken".equals(cookie.getName()))
