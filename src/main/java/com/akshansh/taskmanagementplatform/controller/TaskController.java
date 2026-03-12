@@ -82,9 +82,9 @@ public class TaskController {
     @GetMapping("/tasks/{taskId}")
     public ResponseEntity<TaskByIdResponse> getTaskById(
             @PathVariable Long taskId,
-            @Valid @RequestBody GetProjectIdRequest request
+            @RequestParam Long projectId
             ){
-        TaskByIdResponse task = taskService.getTaskById(request.getProjectId(), taskId);
+        TaskByIdResponse task = taskService.getTaskById(projectId, taskId);
         return ResponseEntity.status(HttpStatus.OK).body(task);
     }
 
