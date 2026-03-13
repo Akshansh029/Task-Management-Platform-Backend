@@ -5,6 +5,7 @@ import com.akshansh.taskmanagementplatform.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,37 +59,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
-        } catch (ExpiredJwtException e) {
-            log.warn("JWT expired for request: {}", request.getRequestURI());
-            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "Token has expired, please login again");
-            return;     // Stop filter chain
-        } catch (MalformedJwtException e) {
-            log.warn("JWT malformed for request: {}", request.getRequestURI());
-            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "Malformed JWT token");
-            return;
-        }
-        catch (JwtException e) {
-            log.warn("JWT error for request: {}", request.getRequestURI());
-            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "Invalid token");
-            return;
+        } catch (JwtException e) {
+            // Store exception as request attribute, then let Spring Security handle it
+            request.setAttribute("jwt_exception", e);
+            SecurityContextHolder.clearContext();
+            // Do NOT rethrow — just return and let the entry point handle the response
+            filterChain.doFilter(request, response); // or just return;
         }
 
         // Pass to the next filter
         filterChain.doFilter(request, response);
-    }
-
-
-    // Helper to write error response
-    private void sendErrorResponse(HttpServletResponse response,
-                                   HttpStatus status,
-                                   String message) throws IOException {
-        response.setStatus(status.value());
-        response.setContentType("application/json");
-        response.getWriter().write(
-                String.format(
-                        "{\"timestamp\": %s, \"status\": %d, \"error\": \"%s\", \"message\": \"%s\"}",
-                        LocalDateTime.now(), status.value(), status.getReasonPhrase(), message
-                )
-        );
     }
 }

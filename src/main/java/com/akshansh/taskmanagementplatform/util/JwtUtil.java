@@ -24,7 +24,7 @@ public class JwtUtil {
     @Value("${jwt.issuer}")
     private String jwtIssuer;
 
-    private final long ACCESS_EXPIRY_MS = 1000 * 60 * 10;      // 10 mins
+    private final long ACCESS_EXPIRY_MS = 1000 * 60 * 1;      // 1 mins
     private final long REFRESH_EXPIRY_MS = 1000L * 60 * 60 * 24 * 30 * 2;      // 2 months
 
     @PostConstruct

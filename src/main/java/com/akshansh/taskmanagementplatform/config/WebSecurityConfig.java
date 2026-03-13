@@ -1,6 +1,7 @@
 package com.akshansh.taskmanagementplatform.config;
 
 import com.akshansh.taskmanagementplatform.filter.JwtAuthFilter;
+import com.akshansh.taskmanagementplatform.util.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +36,7 @@ public class WebSecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     // AuthProvider
     @Bean
@@ -55,7 +57,9 @@ public class WebSecurityConfig {
                                 .anyRequest().authenticated())       // authenticate all requests
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex ->
+                        ex.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
     }
