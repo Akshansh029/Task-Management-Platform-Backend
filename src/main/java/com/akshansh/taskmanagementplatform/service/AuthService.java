@@ -74,7 +74,5 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(userDetails);
 
         return new LoginResponse("Token refreshed", accessToken, refreshToken);
-
-
     }
 }

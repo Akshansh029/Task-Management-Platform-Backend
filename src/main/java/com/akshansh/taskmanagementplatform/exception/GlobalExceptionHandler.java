@@ -3,6 +3,7 @@ package com.akshansh.taskmanagementplatform.exception;
 import com.akshansh.taskmanagementplatform.dto.ErrorResponse;
 import com.akshansh.taskmanagementplatform.dto.ValidationErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -84,12 +85,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleInvalidAuthentication(AuthenticationException ex, WebRequest request) {
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.UNAUTHORIZED.value(),
                 "Invalid email or password",
                 ex.getMessage(),
                 request.getDescription(false)
         );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponse> handleJwtException(JwtException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "JWT Exception",
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(ValidationException.class)
