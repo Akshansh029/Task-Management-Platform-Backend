@@ -24,6 +24,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        // Skip JWT filter for OAuth2 paths
+        return path.startsWith("/api/v1/oauth2/") ||
+                path.startsWith("/api/v1/login/oauth2/") ||
+                path.startsWith("/auth/");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Read authorization header
         String authHeader = request.getHeader("Authorization");

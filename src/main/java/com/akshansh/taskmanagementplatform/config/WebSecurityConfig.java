@@ -2,7 +2,9 @@ package com.akshansh.taskmanagementplatform.config;
 
 import com.akshansh.taskmanagementplatform.filter.JwtAuthFilter;
 import com.akshansh.taskmanagementplatform.util.JwtAuthenticationEntryPoint;
+import com.akshansh.taskmanagementplatform.util.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,6 +30,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -37,6 +40,7 @@ public class WebSecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     // AuthProvider
     @Bean
@@ -47,17 +51,32 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http){
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)      // CSRF token disabled
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers("/auth/**").permitAll()     // leave auth requests open
+                        request
+                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/oauth2/**").permitAll()
+                                .requestMatchers("/login/oauth2/**").permitAll()     // leave auth requests open
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .anyRequest().authenticated())       // authenticate all requests
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oAuthConfig ->
+                        oAuthConfig
+                                .authorizationEndpoint(auth ->
+                                        auth.baseUri("/api/v1/oauth2/authorization")  // initiation path
+                                )
+                                .redirectionEndpoint(redir ->
+                                        redir.baseUri("/api/v1/login/oauth2/code/*")  // callback path
+                                )
+                                .failureHandler(((request, response, exception) -> {
+                                    log.error("OAuth2 error: {}", exception.getMessage());
+                        }))
+                                .successHandler(oAuth2SuccessHandler))
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
