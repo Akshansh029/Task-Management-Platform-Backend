@@ -18,6 +18,8 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Data
+@AllArgsConstructor
+@Builder
 @NoArgsConstructor
 public class User {
     @Id
@@ -35,14 +37,17 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @NotNull(message = "Password is required")
     @Size(max = 250, message = "Password can be max 250 characters")
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private UserRole role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AuthProvider provider;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

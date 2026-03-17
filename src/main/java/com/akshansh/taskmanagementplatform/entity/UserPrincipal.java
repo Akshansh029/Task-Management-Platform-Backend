@@ -1,5 +1,6 @@
 package com.akshansh.taskmanagementplatform.entity;
 
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,7 +30,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public @Nullable String getPassword() {
-        return user.getPassword();
+        return user.getPassword() != null ? user.getPassword() : "";
     }
 
     @Override
