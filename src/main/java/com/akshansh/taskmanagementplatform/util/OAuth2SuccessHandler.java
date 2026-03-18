@@ -6,7 +6,6 @@ import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import com.akshansh.taskmanagementplatform.service.UserDetailsServiceImpl;
-import com.akshansh.taskmanagementplatform.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

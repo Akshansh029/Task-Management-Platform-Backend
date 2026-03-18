@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.config;
 
 import com.akshansh.taskmanagementplatform.filter.JwtAuthFilter;
 import com.akshansh.taskmanagementplatform.util.JwtAuthenticationEntryPoint;
+import com.akshansh.taskmanagementplatform.util.OAuth2FailureHandler;
 import com.akshansh.taskmanagementplatform.util.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,7 @@ public class WebSecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     // AuthProvider
     @Bean
@@ -59,6 +61,7 @@ public class WebSecurityConfig {
                         request
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/oauth2/**").permitAll()
+                                .requestMatchers("/error").permitAll()
                                 .requestMatchers("/login/oauth2/**").permitAll()     // leave auth requests open
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .anyRequest().authenticated())       // authenticate all requests
@@ -73,9 +76,7 @@ public class WebSecurityConfig {
                                 .redirectionEndpoint(redir ->
                                         redir.baseUri("/api/v1/login/oauth2/code/*")  // callback path
                                 )
-                                .failureHandler(((request, response, exception) -> {
-                                    log.error("OAuth2 error: {}", exception.getMessage());
-                        }))
+                                .failureHandler(oAuth2FailureHandler)
                                 .successHandler(oAuth2SuccessHandler))
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(jwtAuthenticationEntryPoint));
