@@ -70,7 +70,11 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(loginResp);
     }
 
-
+    @Operation(summary = "Generate new access token", description = "Generate new access token with the help of refresh token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login successfully",
+                    content = @Content(schema = @Schema(implementation = LoginResponse.class)))
+    })
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request){
         if(request.getCookies() == null){
@@ -87,33 +91,9 @@ public class AuthController {
     }
 
     @PostMapping("/oauth2/token")
-    public ResponseEntity<?> exchangeCode(@RequestParam String code,
-                                          HttpServletRequest request,
-                                          HttpServletResponse response) {
-        try {
+    public ResponseEntity<LoginResponse> exchangeCode(@RequestParam String code) {
             AuthCodeService.TokenPair tokens = authCodeService.exchange(code);
-
-            boolean isSecure = request.isSecure();
-
-            Cookie accessCookie = new Cookie("accessToken", tokens.accessToken());
-            accessCookie.setHttpOnly(true);
-            accessCookie.setSecure(isSecure);
-            accessCookie.setPath("/");
-            accessCookie.setMaxAge(10 * 60); // 10 minutes
-
-            Cookie refreshCookie = new Cookie("refreshToken", tokens.refreshToken());
-            refreshCookie.setHttpOnly(true);
-            refreshCookie.setSecure(isSecure);
-            refreshCookie.setPath("/");
-            refreshCookie.setMaxAge(2 * 30 * 24 * 60 * 60); // 2 months
-
-            response.addCookie(accessCookie);
-            response.addCookie(refreshCookie);
-
-            return ResponseEntity.ok(Map.of("message", "Authentication successful"));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body("Invalid or expired code");
-        }
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new LoginResponse("Login successful", tokens.accessToken(), tokens.refreshToken()));
     }
 }
