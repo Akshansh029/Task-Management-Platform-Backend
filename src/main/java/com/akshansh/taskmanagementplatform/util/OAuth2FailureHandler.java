@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -14,6 +15,10 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
+
+    @Value("${app.frontend.url}")
+    private String frontendAppUrl;
+
     @Override
     public void onAuthenticationFailure(
             HttpServletRequest request,
@@ -33,6 +38,6 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
         }
 
         String encodedMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
-        response.sendRedirect("/login?error=" + encodedMessage);
+        response.sendRedirect(frontendAppUrl + "/login?error=" + encodedMessage);
     }
 }

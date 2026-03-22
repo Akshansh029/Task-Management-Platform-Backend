@@ -5,12 +5,14 @@ import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
+import com.akshansh.taskmanagementplatform.service.AuthCodeService;
 import com.akshansh.taskmanagementplatform.service.UserDetailsServiceImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +30,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepo;
     private final UserDetailsServiceImpl userService;
     private final JwtUtil jwtUtil;
+    private final AuthCodeService authCodeService;
+
+    @Value("${app.frontend.url}")
+    private String frontendAppUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -54,22 +61,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         String accessToken = jwtUtil.generateAccessToken(userPrincipal);
         String refreshToken = jwtUtil.generateRefreshToken(userPrincipal);
+        String oneTimeCode = UUID.randomUUID().toString();
 
-        Cookie accessCookie = new Cookie("accessToken", accessToken);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setSecure(false);  // set true in prod (requires HTTPS)
-        accessCookie.setPath("/");
-        accessCookie.setMaxAge(10 * 60); // 10 minutes
+        // Store mapping: code → tokens, expires in 2 minutes
+        authCodeService.store(oneTimeCode, accessToken, refreshToken);
 
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false);  // set true in prod
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(2 * 30 * 24 * 60 * 60); // 2 months
-
-        response.addCookie(accessCookie);
-        response.addCookie(refreshCookie);
-
-        response.sendRedirect("http://localhost:3000");
+        // Redirect with just the code — not the token
+        response.sendRedirect(frontendAppUrl + "/oauth2/callback?code=" + oneTimeCode);
     }
 }

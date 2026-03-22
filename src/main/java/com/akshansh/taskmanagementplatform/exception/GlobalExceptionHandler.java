@@ -2,7 +2,6 @@ package com.akshansh.taskmanagementplatform.exception;
 
 import com.akshansh.taskmanagementplatform.dto.ErrorResponse;
 import com.akshansh.taskmanagementplatform.dto.ValidationErrorResponse;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import java.security.SignatureException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,6 +45,17 @@ public class GlobalExceptionHandler {
                 request.getDescription(false)
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidAuthCodeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidAuthCode(InvalidAuthCodeException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
