@@ -17,8 +17,8 @@ import java.nio.charset.StandardCharsets;
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
     @Value("${app.frontend.url}")
-
     private String frontendAppUrl;
+
     @Override
     public void onAuthenticationFailure(
             HttpServletRequest request,

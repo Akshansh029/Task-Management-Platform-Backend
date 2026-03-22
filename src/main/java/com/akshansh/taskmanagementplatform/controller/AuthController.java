@@ -6,6 +6,7 @@ import com.akshansh.taskmanagementplatform.dto.request.RegisterUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.LoginResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
+import com.akshansh.taskmanagementplatform.service.AuthCodeService;
 import com.akshansh.taskmanagementplatform.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,6 +26,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,6 +34,7 @@ import java.util.Arrays;
 @Tag(name = "Auth Controller", description = "APIs for authentication")
 public class AuthController {
     private final AuthService authService;
+    private final AuthCodeService authCodeService;
 
 
     @Operation(summary = "Register the user", description = "Register the user and add details in database")
@@ -81,5 +84,36 @@ public class AuthController {
                 .orElseThrow(()-> new AuthenticationServiceException("RefreshToken not found"));
         LoginResponse loginResponseDto = authService.refreshToken(refreshToken);
         return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
+    }
+
+    @PostMapping("/oauth2/token")
+    public ResponseEntity<?> exchangeCode(@RequestParam String code,
+                                          HttpServletRequest request,
+                                          HttpServletResponse response) {
+        try {
+            AuthCodeService.TokenPair tokens = authCodeService.exchange(code);
+
+            boolean isSecure = request.isSecure();
+
+            Cookie accessCookie = new Cookie("accessToken", tokens.accessToken());
+            accessCookie.setHttpOnly(true);
+            accessCookie.setSecure(isSecure);
+            accessCookie.setPath("/");
+            accessCookie.setMaxAge(10 * 60); // 10 minutes
+
+            Cookie refreshCookie = new Cookie("refreshToken", tokens.refreshToken());
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setSecure(isSecure);
+            refreshCookie.setPath("/");
+            refreshCookie.setMaxAge(2 * 30 * 24 * 60 * 60); // 2 months
+
+            response.addCookie(accessCookie);
+            response.addCookie(refreshCookie);
+
+            return ResponseEntity.ok(Map.of("message", "Authentication successful"));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid or expired code");
+        }
     }
 }
