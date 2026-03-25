@@ -68,7 +68,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/error").permitAll()
                                 .requestMatchers("/login/oauth2/**").permitAll()     // leave auth requests open
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .anyRequest().authenticated())       // authenticate all requests
+                                .anyRequest().authenticated())       // authenticate all other requests
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
