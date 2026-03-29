@@ -42,7 +42,12 @@ public class UserService {
     }
 
     public UserProfileResponse getUserProfileById(Long userId){
-        return userRepo.findUserProfileById(userId);
+        UserProfileResponse profile = userRepo.findUserProfileById(userId);
+        if (profile == null){
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        return profile;
     }
 
     @Transactional

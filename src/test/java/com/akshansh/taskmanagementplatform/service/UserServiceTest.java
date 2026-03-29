@@ -4,6 +4,7 @@ import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
+import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,7 @@ class UserServiceTest {
     private UserService userService;    // This is the class we are testing
 
     private CreateUserRequest createUserRequest;
+    private UserProfileResponse userProfileResponse;
 
     @BeforeEach
     void setup(){
@@ -43,6 +45,15 @@ class UserServiceTest {
                 .email("johndoe1234@gmail.com")
                 .password("jd123456")
                 .role(UserRole.VIEWER)
+                .build();
+
+        this.userProfileResponse = UserProfileResponse.builder()
+                .id(1L)
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.VIEWER)
+                .createdAt(LocalDateTime.now())
+                .ownedProjectsCount(2)
                 .build();
     }
 
@@ -90,6 +101,41 @@ class UserServiceTest {
                     () -> userService.createUser(createUserRequest));
 
             assertTrue(exception.getMessage().contains("User with email"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Get User Profile By Id Tests")
+    class GetUserProfileByIdTests{
+
+        @Test
+        @DisplayName("Should return User Profile if user exists")
+        void getUserProfileByTest_shouldReturnProfile_whenUserExists() {
+            // arrange
+            when(userRepo.findUserProfileById(1L)).thenReturn(userProfileResponse);
+
+            // act
+            UserProfileResponse result = userService.getUserProfileById(1L);
+
+            // assert
+            assertNotNull(result);
+            assertEquals("John Doe", result.getName());
+            assertEquals(UserRole.VIEWER, result.getRole());
+
+            // verify
+            verify(userRepo, times(1)).findUserProfileById(1L);
+        }
+
+        @Test
+        @DisplayName("Should throw exception if user does not exists")
+        void getUserProfileByTest_shouldThrowException_whenUserDoesNotExists() {
+            // arrange
+            when(userRepo.findUserProfileById(1L)).thenThrow(new ResourceNotFoundException("User not found"));
+
+            // act + assert
+            ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> userService.getUserProfileById(1L));
+
+            assertTrue(exception.getMessage().contains("User not found"));
         }
     }
 }

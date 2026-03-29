@@ -67,9 +67,6 @@ public class UserController {
             throw new ValidationException("Type of id must be Long");
         }
         UserProfileResponse profile = userService.getUserProfileById(id);
-        if (profile == null){
-            throw new ResourceNotFoundException("User not found");
-        }
         return ResponseEntity.status(HttpStatus.OK).body(profile);
     }
 
