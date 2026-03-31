@@ -87,6 +87,7 @@ class UserServiceTest {
 
             // verify
             verify(userRepo, times(1)).save(any(User.class));
+            verify(userRepo, times(1)).findByEmail(createUserRequest.getEmail());
         }
 
         @Test
@@ -101,6 +102,8 @@ class UserServiceTest {
                     () -> userService.createUser(createUserRequest));
 
             assertTrue(exception.getMessage().contains("User with email"));
+
+            verify(userRepo, times(1)).findByEmail(createUserRequest.getEmail());
         }
     }
 
