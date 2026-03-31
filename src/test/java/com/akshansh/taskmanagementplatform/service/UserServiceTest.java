@@ -193,11 +193,14 @@ class UserServiceTest {
 
         @Test
         @DisplayName("Should update name when email is null or blank")
-        @Disabled
         void updateUser_shouldUpdateOnlyName_whenEmailIsNullOrBlank() {
+            UpdateUserRequest nameOnlyReq = UpdateUserRequest.builder()
+                    .name("John Doe Sr")
+                    .email(null)
+                    .build();
             when(userRepo.findById(1L)).thenReturn(Optional.of(user));
 
-            UserProfileResponse result = userService.updateUser(1L, updateUserRequest);
+            UserProfileResponse result = userService.updateUser(1L, nameOnlyReq);
 
             assertNotNull(result);
             assertEquals("John Doe Sr", result.getName());
@@ -209,11 +212,14 @@ class UserServiceTest {
 
         @Test
         @DisplayName("Should update email when name is null or blank")
-        @Disabled
         void updateUser_shouldUpdateOnlyEmail_whenNameIsNullOrBlank() {
+            UpdateUserRequest emailOnlyReq = UpdateUserRequest.builder()
+                    .name(null)
+                    .email("johndoesr1234@gmail.com")
+                    .build();
             when(userRepo.findById(1L)).thenReturn(Optional.of(user));
 
-            UserProfileResponse result = userService.updateUser(1L, updateUserRequest);
+            UserProfileResponse result = userService.updateUser(1L, emailOnlyReq);
 
             assertNotNull(result);
             assertEquals("John Doe", result.getName());
@@ -234,7 +240,7 @@ class UserServiceTest {
         @Test
         @DisplayName("Should throw ResourceNotFoundException when user does not exists")
         void updateUser_shouldThrowResourceNotFoundException_whenUserDoesNotExist() {
-            when(userRepo.findById(1L)).thenThrow(new ResourceNotFoundException("User not found"));
+            when(userRepo.findById(1L)).thenReturn(Optional.empty());
 
             ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> userService.updateUser(1L, updateUserRequest));
 
