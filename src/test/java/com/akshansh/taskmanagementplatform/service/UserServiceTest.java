@@ -1,9 +1,9 @@
 package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
-import com.akshansh.taskmanagementplatform.entity.User;
-import com.akshansh.taskmanagementplatform.entity.UserRole;
+import com.akshansh.taskmanagementplatform.entity.*;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
@@ -15,9 +15,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -37,6 +43,8 @@ class UserServiceTest {
 
     private CreateUserRequest createUserRequest;
     private UserProfileResponse userProfileResponse;
+    private User user;
+    private UpdateUserRequest updateUserRequest;
 
     @BeforeEach
     void setup(){
@@ -54,6 +62,28 @@ class UserServiceTest {
                 .role(UserRole.VIEWER)
                 .createdAt(LocalDateTime.now())
                 .ownedProjectsCount(2)
+                .build();
+
+        this.user = User.builder()
+                .id(1L)
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .createdAt(LocalDateTime.now())
+                .provider(AuthProvider.GOOGLE)
+                .ownedProjects(new HashSet<>())
+                .build();
+
+        UserPrincipal principal = new UserPrincipal(user);
+
+        var authToken = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        this.updateUserRequest = UpdateUserRequest.builder()
+                .name("John Doe Sr")
+                .email("johndoesr1234@gmail.com")
                 .build();
     }
 
@@ -113,7 +143,7 @@ class UserServiceTest {
 
         @Test
         @DisplayName("Should return User Profile if user exists")
-        void getUserProfileByTest_shouldReturnProfile_whenUserExists() {
+        void getUserProfileByIdTest_shouldReturnProfile_whenUserExists() {
             // arrange
             when(userRepo.findUserProfileById(1L)).thenReturn(userProfileResponse);
 
@@ -139,6 +169,37 @@ class UserServiceTest {
             ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> userService.getUserProfileById(1L));
 
             assertTrue(exception.getMessage().contains("User not found"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Update User Tests")
+    class UpdateUserTests{
+
+        @Test
+        @DisplayName("Should update name and email when both fields are provided")
+        void updateUser_shouldUpdateNameAndEmail_whenBothFieldsProvided(){
+            // arrange
+            when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+
+            // act
+            UserProfileResponse result = userService.updateUser(1L, updateUserRequest);
+
+            // assert
+            assertNotNull(result);
+            assertEquals("John Doe Sr", result.getName());
+            assertEquals("johndoesr1234@gmail.com", result.getEmail());
+
+            // verify
+            verify(userRepo, times(1)).findById(1L);
+            verify(userRepo, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should Throw Forbidden Exception when a user tries to update another user")
+        void updateUserTest_shouldThrowException_whenIdMismatches(){
+            // arrange
+
         }
     }
 }
