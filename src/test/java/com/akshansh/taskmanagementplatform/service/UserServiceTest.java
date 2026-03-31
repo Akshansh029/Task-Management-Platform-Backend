@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.service;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRoleRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.*;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
@@ -41,6 +42,7 @@ class UserServiceTest {
     private UserProfileResponse userProfileResponse;
     private User user;
     private UpdateUserRequest updateUserRequest;
+    private UpdateUserRoleRequest updateUserRoleRequest;
 
     @BeforeEach
     void setup(){
@@ -80,6 +82,10 @@ class UserServiceTest {
         this.updateUserRequest = UpdateUserRequest.builder()
                 .name("John Doe Sr")
                 .email("johndoesr1234@gmail.com")
+                .build();
+
+        this.updateUserRoleRequest = UpdateUserRoleRequest.builder()
+                .role(UserRole.VIEWER)
                 .build();
     }
 
@@ -248,6 +254,40 @@ class UserServiceTest {
 
             verify(userRepo, times(1)).findById(1L);
             verify(userRepo, times(0)).save(any(User.class));
+        }
+
+        @Nested
+        @DisplayName("Update User's Role Tests")
+        class UpdateUserRoleTests{
+
+            @Test
+            @DisplayName("Should update user's role when user exists")
+            void updateUserRole_shouldUpdateUserRole_whenUserExists() {
+                when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+
+                UserProfileResponse result = userService.updateUserRole(1L, updateUserRoleRequest);
+
+                assertNotNull(result);
+                assertEquals("John Doe", result.getName());
+                assertEquals("VIEWER", result.getRole().toString());
+
+                verify(userRepo, times(1)).findById(1L);
+                verify(userRepo, times(1)).save(any(User.class));
+            }
+
+            @Test
+            @DisplayName("Should throw ResourceNotFoundException when user doesn't exists")
+            void updateUserRole_shouldThrowException_whenUserDoesNotExists() {
+                when(userRepo.findById(1L)).thenReturn(Optional.empty());
+
+                ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                        () -> userService.updateUserRole(1L, updateUserRoleRequest));
+
+                assertTrue(exception.getMessage().contains("User with ID"));
+
+                verify(userRepo, times(1)).findById(1L);
+                verify(userRepo, times(0)).save(any(User.class));
+            }
         }
     }
 }
