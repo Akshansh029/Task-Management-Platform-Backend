@@ -7,10 +7,7 @@ import com.akshansh.taskmanagementplatform.entity.*;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -191,6 +188,38 @@ class UserServiceTest {
             assertEquals("johndoesr1234@gmail.com", result.getEmail());
 
             // verify
+            verify(userRepo, times(1)).findById(1L);
+            verify(userRepo, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should update name when email is null or blank")
+        @Disabled
+        void updateUser_shouldUpdateOnlyName_whenEmailIsNullOrBlank() {
+            when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+
+            UserProfileResponse result = userService.updateUser(1L, updateUserRequest);
+
+            assertNotNull(result);
+            assertEquals("John Doe Sr", result.getName());
+            assertEquals("johndoe1234@gmail.com", result.getEmail());
+
+            verify(userRepo, times(1)).findById(1L);
+            verify(userRepo, times(1)).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should update email when name is null or blank")
+        @Disabled
+        void updateUser_shouldUpdateOnlyEmail_whenNameIsNullOrBlank() {
+            when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+
+            UserProfileResponse result = userService.updateUser(1L, updateUserRequest);
+
+            assertNotNull(result);
+            assertEquals("John Doe", result.getName());
+            assertEquals("johndoesr1234@gmail.com", result.getEmail());
+
             verify(userRepo, times(1)).findById(1L);
             verify(userRepo, times(1)).save(any(User.class));
         }
