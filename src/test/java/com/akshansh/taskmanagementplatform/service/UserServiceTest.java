@@ -4,6 +4,7 @@ import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.*;
+import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
@@ -13,14 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -226,9 +225,23 @@ class UserServiceTest {
 
         @Test
         @DisplayName("Should Throw Forbidden Exception when a user tries to update another user")
-        void updateUserTest_shouldThrowException_whenIdMismatches(){
-            // arrange
+        void updateUser_shouldThrowForbiddenException_whenUserIsNotOwner() {
+            ForbiddenException exception = assertThrows(ForbiddenException.class, () -> userService.updateUser(2L, updateUserRequest));
 
+            assertTrue(exception.getMessage().contains("update their profile"));
+        }
+
+        @Test
+        @DisplayName("Should throw ResourceNotFoundException when user does not exists")
+        void updateUser_shouldThrowResourceNotFoundException_whenUserDoesNotExist() {
+            when(userRepo.findById(1L)).thenThrow(new ResourceNotFoundException("User not found"));
+
+            ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> userService.updateUser(1L, updateUserRequest));
+
+            assertTrue(exception.getMessage().contains("User not found"));
+
+            verify(userRepo, times(1)).findById(1L);
+            verify(userRepo, times(0)).save(any(User.class));
         }
     }
 }
