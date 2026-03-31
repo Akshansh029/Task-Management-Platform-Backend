@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,6 +14,9 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import tools.jackson.databind.exc.InvalidFormatException;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -175,6 +179,36 @@ public class GlobalExceptionHandler {
                 request.getDescription(false)
         );
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRequest(InvalidRequestException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, WebRequest request) {
+        Throwable cause = ex.getCause();
+        if (cause instanceof InvalidFormatException invalidEx && invalidEx.getTargetType().isEnum()) {
+            String message = String.format("Invalid value '%s' for field '%s'. Must be one of %s.",
+                    invalidEx.getValue(),
+                    invalidEx.getPath().get(invalidEx.getPath().size() - 1).getPropertyName(),
+                    Arrays.toString(invalidEx.getTargetType().getEnumConstants())
+            );
+            ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+                    HttpStatus.BAD_REQUEST.getReasonPhrase(), message, request.getDescription(false));
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
+        // Fallback for other JSON parse errors
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+                "Bad Request", ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

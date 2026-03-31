@@ -7,6 +7,7 @@ import com.akshansh.taskmanagementplatform.dto.response.ActiveUserResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
+import com.akshansh.taskmanagementplatform.exception.InvalidRequestException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.ValidationException;
 import com.akshansh.taskmanagementplatform.service.UserService;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.akshansh.taskmanagementplatform.entity.UserRole.isUserRole;
 
 @RestController
 @RequestMapping("/users")
@@ -126,7 +130,9 @@ public class UserController {
             @PathVariable Long id,
             @RequestBody UpdateUserRoleRequest request
     ){
-        
+        if(request.getRole() == null || isUserRole(request.getRole().toString())){
+            throw new InvalidRequestException("Invalid user role");
+        }
         UserProfileResponse updatedRole = userService.updateUserRole(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedRole);
     }

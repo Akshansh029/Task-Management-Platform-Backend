@@ -7,11 +7,13 @@ import com.akshansh.taskmanagementplatform.dto.response.ActiveUserResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
+import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.akshansh.taskmanagementplatform.entity.User.convertToDto;
+import static com.akshansh.taskmanagementplatform.entity.UserRole.isUserRole;
 import static com.akshansh.taskmanagementplatform.util.UserUtil.getCurrentUser;
 
 @Service
@@ -113,9 +116,6 @@ public class UserService {
 
     @Transactional
     public UserProfileResponse updateUserRole(Long id, UpdateUserRoleRequest request){
-//        if(!isAdmin(userId))
-//            throw new ForbiddenException("Only admins can update user role");
-
         User user = userRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID: " + id + " not found"));
 
