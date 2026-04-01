@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -104,6 +105,10 @@ class UserServiceTest {
                 .build();
     }
 
+    @AfterEach
+    void cleanup(){
+        SecurityContextHolder.clearContext();
+    }
 
     @Nested
     @DisplayName("Create User Tests")       // Nested classes are used to organize tests
@@ -318,6 +323,16 @@ class UserServiceTest {
 
             verify(userRepo, times(1)).deleteById(1L);
         }
+
+        @Test
+        @DisplayName("Should not throw any exception when user does not exists")
+        void deleteUser_shouldNotThrow_whenUserDoesNotExists() {
+            doNothing().when(userRepo).deleteById(99L);
+
+            assertDoesNotThrow(() -> userService.deleteUser(99L));
+
+            verify(userRepo, times(1)).deleteById(99L);
+        }
     }
 
     @Nested
@@ -336,6 +351,16 @@ class UserServiceTest {
             assertEquals("MEMBER", result.getRole().toString());
 
             verify(userRepo, times(1)).findActiveUserDetails(1L);
+        }
+
+        @Test
+        @DisplayName("Should throw exception if user is unauthenticated")
+        void getActiveUserDetails_shouldThrow_whenUserIsUnauthenticated() {
+            SecurityContextHolder.clearContext();
+
+            assertThrows(AuthenticationException.class, () -> userService.getActiveUserDetails());
+
+            verify(userRepo, times(0)).findActiveUserDetails(any(Long.class ));
         }
     }
 }
