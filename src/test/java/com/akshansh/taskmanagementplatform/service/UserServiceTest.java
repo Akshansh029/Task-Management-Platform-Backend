@@ -14,14 +14,21 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,6 +53,8 @@ class UserServiceTest {
     private UpdateUserRequest updateUserRequest;
     private UpdateUserRoleRequest updateUserRoleRequest;
     private ActiveUserResponse activeUserResponse;
+    private Pageable pageable;
+    private Page<UserProfileResponse> pagedResponse;
 
     @BeforeEach
     void setup(){
@@ -103,6 +112,10 @@ class UserServiceTest {
                 .assignedTasksCount(4)
                 .memberOfProjectsCount(2)
                 .build();
+
+        this.pageable = PageRequest.of(0, 10);
+
+        this.pagedResponse = new PageImpl<>(List.of(userProfileResponse));
     }
 
     @AfterEach
@@ -191,6 +204,55 @@ class UserServiceTest {
             ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> userService.getUserProfileById(1L));
 
             assertTrue(exception.getMessage().contains("User not found"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Get All Users Test")
+    class GetAllUsersTest{
+
+        @Test
+        @DisplayName("Should return paged response when search is null")
+        void getAllUsers_shouldReturnPagedData_whenSearchIsNull() {
+            when(userRepo.findAllUserProfiles(pageable)).thenReturn(pagedResponse);
+
+            Page<UserProfileResponse> result = userService.getAllUsers(0, 10, null);
+
+            assertNotNull(result);
+            assertEquals(1, result.getTotalPages());
+            assertEquals(1, result.getContent().size());
+
+            verify(userRepo, times(1)).findAllUserProfiles(pageable);
+        }
+
+        @Test
+        @DisplayName("Should return paged response when search is NOT null and user exists")
+        void getAllUsers_shouldReturnPagedResponse_whenSearchIsNotNull() {
+            when(userRepo.findAllUserProfiles("John", pageable)).thenReturn(pagedResponse);
+
+            Page<UserProfileResponse> result = userService.getAllUsers(0, 10, "John");
+
+            assertNotNull(result);
+            assertEquals(1, result.getContent().size());
+            assertEquals("John Doe", result.getContent().get(0).getName());
+
+            verify(userRepo, times(0)).findAllUserProfiles(pageable);
+            verify(userRepo, times(1)).findAllUserProfiles("John", pageable);
+        }
+
+        @Test
+        @DisplayName("Should return empty page response when search is NOT null and user is not found")
+        void getAllUsers_shouldReturnEmptyPage_whenNoUserIsFound() {
+            when(userRepo.findAllUserProfiles("Smith", pageable))
+                    .thenReturn(new PageImpl<>(new ArrayList<>()));
+
+            Page<UserProfileResponse> result = userService.getAllUsers(0, 10, "Smith");
+
+            assertNotNull(result);
+            assertEquals(0, result.getContent().size());
+
+            verify(userRepo, times(0)).findAllUserProfiles(pageable);
+            verify(userRepo, times(1)).findAllUserProfiles("Smith", pageable);
         }
     }
 
