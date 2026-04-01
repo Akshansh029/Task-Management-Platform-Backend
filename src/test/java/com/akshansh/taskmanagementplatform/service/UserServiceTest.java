@@ -55,6 +55,9 @@ class UserServiceTest {
     private ActiveUserResponse activeUserResponse;
     private Pageable pageable;
     private Page<UserProfileResponse> pagedResponse;
+    private CreateUserRequest req1;
+    private CreateUserRequest req2;
+    private List<CreateUserRequest> data;
 
     @BeforeEach
     void setup(){
@@ -116,6 +119,20 @@ class UserServiceTest {
         this.pageable = PageRequest.of(0, 10);
 
         this.pagedResponse = new PageImpl<>(List.of(userProfileResponse));
+
+        this.req1 = CreateUserRequest.builder()
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .password("jd123456")
+                .role(UserRole.VIEWER)
+                .build();
+        this.req2 = CreateUserRequest.builder()
+                .name("Steve Richie")
+                .email("steverichie@gmail.com")
+                .password("sr123456")
+                .role(UserRole.MEMBER)
+                .build();
+        this.data = List.of(req1, req2);
     }
 
     @AfterEach
@@ -136,7 +153,7 @@ class UserServiceTest {
                     .name("John Doe")
                     .email("johndoe1234@gmail.com")
                     .role(UserRole.VIEWER)
-                    .password(null)          // service will encode it, so null is fine here
+                    .password(null)          // service will encode it, so null is fine
                     .provider(null)
                     .createdAt(LocalDateTime.now())
                     .build();
@@ -169,6 +186,47 @@ class UserServiceTest {
             assertTrue(exception.getMessage().contains("User with email"));
 
             verify(userRepo, times(1)).findByEmail(createUserRequest.getEmail());
+        }
+    }
+
+    @Nested
+    @DisplayName("Bulk Create Users Test")
+    class BulkCreateUsersTest{
+
+        @Test
+        @DisplayName("Should create users when all users are new")
+        void bulkCreateUsers_shouldCreateUsers_whenAllUsersAreNew() {
+            when(userRepo.findByEmail("johndoe1234@gmail.com")).thenReturn(null);
+            when(userRepo.findByEmail("steverichie@gmail.com")).thenReturn(null);
+
+            userService.bulkCreateUsers(data);
+
+            verify(userRepo, times(1)).saveAll(any(Iterable.class));
+        }
+
+        @Test
+        @DisplayName("Should throw UserAlreadyExistsException when user is already registered")
+        void bulkCreateUsers_shouldThrow_whenUserIsAlreadyRegistered() {
+            when(userRepo.findByEmail("johndoe1234@gmail.com"))
+                    .thenReturn(user);
+
+            UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
+                    () -> userService.bulkCreateUsers(data));
+
+            assertTrue(exception.getMessage().contains("johndoe1234@gmail.com"));
+        }
+
+        @Test
+        @DisplayName("Should throw and not save anything when second user already exists")
+        void bulkCreateUsers_shouldThrowAndNotSave_whenSecondUserAlreadyExists() {
+            // First user is new, second already exists
+            when(userRepo.findByEmail("johndoe1234@gmail.com")).thenReturn(null);
+            when(userRepo.findByEmail("steverichie@gmail.com")).thenReturn(user);
+
+            assertThrows(UserAlreadyExistsException.class,
+                    () -> userService.bulkCreateUsers(data));
+
+            verify(userRepo, never()).saveAll(any());
         }
     }
 
