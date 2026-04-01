@@ -105,7 +105,7 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MEMBER')")
     public ResponseEntity<UserProfileResponse> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request
@@ -125,7 +125,7 @@ public class UserController {
                     content = @Content(schema = @Schema()))
     })
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<UserProfileResponse> updateUserRole(
             @PathVariable Long id,
             @RequestBody UpdateUserRoleRequest request

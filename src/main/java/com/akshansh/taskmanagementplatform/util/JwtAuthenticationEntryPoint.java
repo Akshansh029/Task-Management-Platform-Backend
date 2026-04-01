@@ -26,13 +26,19 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        // Check if a JWT-specific exception was stored by your filter
-        Exception jwtEx = (Exception) request.getAttribute("jwt_exception");
-        String message = jwtEx != null ? jwtEx.getMessage() : authException.getMessage();
+        // Pick the most specific exception message available
+        Exception cause = (Exception) request.getAttribute("jwt_exception");
+        if (cause == null) {
+            cause = (Exception) request.getAttribute("username_not_found_exception");
+        }
 
+        String message = cause != null ? cause.getMessage() : authException.getMessage();
+        String errorType = cause != null ? cause.getClass().getSimpleName() : "AuthenticationException";
+
+        // Write exactly ONE response
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                "JWT Exception",
+                errorType,
                 message,
                 request.getRequestURI()
         );

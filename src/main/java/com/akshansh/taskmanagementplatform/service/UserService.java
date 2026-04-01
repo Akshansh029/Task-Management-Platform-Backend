@@ -7,13 +7,11 @@ import com.akshansh.taskmanagementplatform.dto.response.ActiveUserResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserPrincipal;
-import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
 import com.akshansh.taskmanagementplatform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.akshansh.taskmanagementplatform.entity.User.convertToDto;
-import static com.akshansh.taskmanagementplatform.entity.UserRole.isUserRole;
 import static com.akshansh.taskmanagementplatform.util.UserUtil.getCurrentUser;
 
 @Service
@@ -94,7 +91,7 @@ public class UserService {
         // Check if current user is update profile or not
         UserPrincipal currentUser = getCurrentUser();
 
-        if(!id.equals(currentUser.getUserId())){
+        if(!id.equals(currentUser.getUserId()) && !currentUser.getAuthorities().stream().toList().get(0).toString().equals("ADMIN")){
             throw new ForbiddenException("Only admins or user themselves can update their profile");
         }
 

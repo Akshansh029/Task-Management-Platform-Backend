@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -68,8 +69,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // Store exception as request attribute, then let Spring Security handle it
             request.setAttribute("jwt_exception", e);
             SecurityContextHolder.clearContext();
-            // Do NOT rethrow — just return and let the entry point handle the response
-            filterChain.doFilter(request, response); // or just return;
+            return;
+        } catch (UsernameNotFoundException e) {
+            request.setAttribute("username_not_found_exception", e);
+            SecurityContextHolder.clearContext();
+            return;
         }
 
         // Pass to the next filter
