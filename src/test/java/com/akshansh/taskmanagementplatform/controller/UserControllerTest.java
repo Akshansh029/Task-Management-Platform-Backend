@@ -259,4 +259,18 @@ class UserControllerTest {
                     .andExpect(jsonPath("$.name").doesNotExist());
         }
     }
+
+    @Nested
+    @DisplayName("Delete User Tests")
+    class DeleteUserTests{
+
+        @Test
+        @DisplayName("")
+        void deleteUser_shouldReturn204_whenUserExists() throws Exception{
+            userService.deleteUser(1L);
+
+            mockMvc.perform(delete("/users/1"))
+                    .andExpect(status().isNoContent());
+        }
+    }
 }
