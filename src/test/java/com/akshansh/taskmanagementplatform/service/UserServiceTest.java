@@ -55,8 +55,6 @@ class UserServiceTest {
     private ActiveUserResponse activeUserResponse;
     private Pageable pageable;
     private Page<UserProfileResponse> pagedResponse;
-    private CreateUserRequest req1;
-    private CreateUserRequest req2;
     private List<CreateUserRequest> data;
 
     @BeforeEach
@@ -120,13 +118,13 @@ class UserServiceTest {
 
         this.pagedResponse = new PageImpl<>(List.of(userProfileResponse));
 
-        this.req1 = CreateUserRequest.builder()
+        CreateUserRequest req1 = CreateUserRequest.builder()
                 .name("John Doe")
                 .email("johndoe1234@gmail.com")
                 .password("jd123456")
                 .role(UserRole.VIEWER)
                 .build();
-        this.req2 = CreateUserRequest.builder()
+        CreateUserRequest req2 = CreateUserRequest.builder()
                 .name("Steve Richie")
                 .email("steverichie@gmail.com")
                 .password("sr123456")

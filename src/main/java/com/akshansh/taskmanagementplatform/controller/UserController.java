@@ -67,9 +67,6 @@ public class UserController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<UserProfileResponse> getUserProfileById(@PathVariable Long id){
-        if(id == null){
-            throw new ValidationException("Type of id must be Long");
-        }
         UserProfileResponse profile = userService.getUserProfileById(id);
         return ResponseEntity.status(HttpStatus.OK).body(profile);
     }
