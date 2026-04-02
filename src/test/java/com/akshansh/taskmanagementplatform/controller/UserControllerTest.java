@@ -3,6 +3,7 @@ package com.akshansh.taskmanagementplatform.controller;
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRoleRequest;
+import com.akshansh.taskmanagementplatform.dto.response.ActiveUserResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -60,6 +62,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
     private UserProfileResponse createResponse;
     private UserProfileResponse updateResponse;
+    private ActiveUserResponse activeUserResponse;
 
     @BeforeEach
     void setup() {
@@ -78,6 +81,7 @@ class UserControllerTest {
                 .createdAt(LocalDateTime.now())
                 .ownedProjectsCount(2)
                 .build();
+
         this.updateResponse = UserProfileResponse.builder()
                 .id(1L)
                 .name("John Doe Sr")
@@ -85,6 +89,17 @@ class UserControllerTest {
                 .role(UserRole.MEMBER)
                 .createdAt(LocalDateTime.now())
                 .ownedProjectsCount(2)
+                .build();
+
+        this.activeUserResponse = ActiveUserResponse.builder()
+                .id(1L)
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .createdAt(LocalDateTime.now())
+                .ownedProjectsCount(1)
+                .assignedTasksCount(4)
+                .memberOfProjectsCount(2)
                 .build();
     }
 
@@ -265,12 +280,44 @@ class UserControllerTest {
     class DeleteUserTests{
 
         @Test
-        @DisplayName("")
+        @DisplayName("Delete User should return 204")
         void deleteUser_shouldReturn204_whenUserExists() throws Exception{
             userService.deleteUser(1L);
 
             mockMvc.perform(delete("/users/1"))
                     .andExpect(status().isNoContent());
+        }
+    }
+
+    @Nested
+    @DisplayName("Get Active User Details Tests")
+    class GetActiveUserDetailsTest{
+
+        @Test
+        @DisplayName("Get Active User Details should return 200 when user is authenticated")
+        void getActiveUserDetails_shouldReturn200_whenUserIsAuthenticated() throws Exception {
+            when(userService.getActiveUserDetails()).thenReturn(activeUserResponse);
+
+            mockMvc.perform(get("/users/me"))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("John Doe"))
+                    .andExpect(jsonPath("$.role").value("MEMBER"))
+                    .andExpect(jsonPath("$.assignedTasksCount").value(4));
+
+        }
+
+        @Test
+        @DisplayName("Get Active User Details should return 401 when user is unauthenticated")
+        void getActiveUserDetails_shouldReturn401_whenUserIsUnauthenticated() throws Exception {
+            when(userService.getActiveUserDetails())
+                    .thenThrow(new AuthenticationCredentialsNotFoundException("No authenticated user found"));
+
+            mockMvc.perform(get("/users/me"))
+                    .andDo(print())
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.name").doesNotExist());
+
         }
     }
 }
