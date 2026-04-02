@@ -2,6 +2,7 @@ package com.akshansh.taskmanagementplatform.controller;
 
 import com.akshansh.taskmanagementplatform.dto.request.CreateUserRequest;
 import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRequest;
+import com.akshansh.taskmanagementplatform.dto.request.UpdateUserRoleRequest;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
@@ -31,6 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -209,14 +211,52 @@ class UserControllerTest {
                     .email("hacker@gmail.com")
                     .build();
 
-            // Service throws ForbiddenException when IDs don't match
             when(userService.updateUser(2L, request))
                     .thenThrow(new ForbiddenException("Only admins or user themselves can update"));
 
-            mockMvc.perform(put("/users/2")   // ← trying to update user 2 while logged in as 1
+            mockMvc.perform(put("/users/2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
+        }
+    }
+
+    @Nested
+    @DisplayName("Update User Role Tests")
+    class UpdateUserRoleTests{
+
+        @Test
+        @DisplayName("Update user role should return 200 OK when request is valid")
+        void updateUserRole_shouldReturn200_whenRequestIsValid() throws Exception {
+            UpdateUserRoleRequest request = UpdateUserRoleRequest.builder()
+                    .role(UserRole.MEMBER)
+                    .build();
+
+            when(userService.updateUserRole(eq(1L), any(UpdateUserRoleRequest.class)))
+                    .thenReturn(createResponse);
+
+            mockMvc.perform(patch("/users/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.role").value(UserRole.MEMBER.name())); // enum → string
+        }
+
+        @Test
+        @DisplayName("Update user role should return 404 NOT FOUND when user does not exists")
+        void updateUserRole_shouldReturn404_whenUserDoesNotExists() throws Exception {
+            UpdateUserRoleRequest request = UpdateUserRoleRequest.builder()
+                    .role(UserRole.MEMBER)
+                    .build();
+
+            when(userService.updateUserRole(eq(1L), any(UpdateUserRoleRequest.class)))
+                    .thenThrow(new ResourceNotFoundException("User with ID: 1 not found"));
+
+            mockMvc.perform(patch("/users/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.name").doesNotExist());
         }
     }
 }

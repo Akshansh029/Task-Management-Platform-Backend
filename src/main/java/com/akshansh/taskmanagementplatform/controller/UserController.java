@@ -127,7 +127,7 @@ public class UserController {
             @PathVariable Long id,
             @RequestBody UpdateUserRoleRequest request
     ){
-        if(request.getRole() == null || isUserRole(request.getRole().toString())){
+        if(!isUserRole(request.getRole().toString())){
             throw new InvalidRequestException("Invalid user role");
         }
         UserProfileResponse updatedRole = userService.updateUserRole(id, request);
