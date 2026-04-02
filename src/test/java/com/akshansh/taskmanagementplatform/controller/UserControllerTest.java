@@ -8,6 +8,7 @@ import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
+import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
 import com.akshansh.taskmanagementplatform.filter.JwtAuthFilter;
 import com.akshansh.taskmanagementplatform.security.WithMockUserPrincipal;
 import com.akshansh.taskmanagementplatform.service.UserService;
@@ -29,10 +30,11 @@ import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -63,6 +65,7 @@ class UserControllerTest {
     private UserProfileResponse createResponse;
     private UserProfileResponse updateResponse;
     private ActiveUserResponse activeUserResponse;
+    private List<CreateUserRequest> bulkCreationRequest;
 
     @BeforeEach
     void setup() {
@@ -101,6 +104,22 @@ class UserControllerTest {
                 .assignedTasksCount(4)
                 .memberOfProjectsCount(2)
                 .build();
+
+        CreateUserRequest req1 = CreateUserRequest.builder()
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .password("jd123456")
+                .build();
+
+        CreateUserRequest req2 = CreateUserRequest.builder()
+                .name("Smith Payne")
+                .email("smithpayne1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .password("sp123456")
+                .build();
+
+        this.bulkCreationRequest = List.of(req1, req2);
     }
 
     @Nested
@@ -282,7 +301,7 @@ class UserControllerTest {
         @Test
         @DisplayName("Delete User should return 204")
         void deleteUser_shouldReturn204_whenUserExists() throws Exception{
-            userService.deleteUser(1L);
+            doNothing().when(userService).deleteUser(1L);
 
             mockMvc.perform(delete("/users/1"))
                     .andExpect(status().isNoContent());
@@ -318,6 +337,33 @@ class UserControllerTest {
                     .andExpect(status().isUnauthorized())
                     .andExpect(jsonPath("$.name").doesNotExist());
 
+        }
+    }
+
+    @Nested
+    @DisplayName("Bulk User Creation Tests")
+    class BulkUserCreationTests{
+
+        @Test
+        @DisplayName("Bulk User Creation should return 201 CREATED when request is valid")
+        void bulkUserCreation_shouldReturn201_whenUsersListIsValid() throws Exception{
+            doNothing().when(userService).bulkCreateUsers(bulkCreationRequest);
+
+            mockMvc.perform(post("/users/bulk-create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(bulkCreationRequest)))
+                    .andExpect(status().isCreated());
+        }
+
+        @Test
+        @DisplayName("Bulk User Creation should return 400 BAD_REQUEST when request is invalid")
+        void bulkUserCreation_shouldReturn400_whenUsersListIsInvalid() throws Exception{
+            doThrow(new UserAlreadyExistsException("User already exists")).when(userService).bulkCreateUsers(bulkCreationRequest);
+
+            mockMvc.perform(post("/users/bulk-create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(bulkCreationRequest)))
+                    .andExpect(status().isBadRequest());
         }
     }
 }
