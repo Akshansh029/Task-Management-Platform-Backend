@@ -47,9 +47,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Override
     <S extends User> S save(S entity);
 
-    // Delete User
-    void deleteUserById(Long userId);
-
     User findByEmail(String email);
 
     // Get Active User Details

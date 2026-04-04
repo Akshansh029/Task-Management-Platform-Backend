@@ -52,7 +52,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 OAuth2ClientAutoConfiguration.class,
                 OAuth2ClientWebSecurityAutoConfiguration.class
         }
-
 )
 @AutoConfigureMockMvc(addFilters = false)
 @Import(UserControllerTest.MethodSecurityTestConfig.class)
