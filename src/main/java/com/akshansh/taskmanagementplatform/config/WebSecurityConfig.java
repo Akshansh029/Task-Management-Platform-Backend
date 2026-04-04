@@ -7,6 +7,7 @@ import com.akshansh.taskmanagementplatform.util.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,6 +23,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -43,6 +45,7 @@ public class WebSecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
+    private final ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository;
 
     @Value("${app.frontend.url}")
     private String frontendAppUrl;
@@ -71,18 +74,21 @@ public class WebSecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login(oAuthConfig ->
-                        oAuthConfig
-                                .authorizationEndpoint(auth ->
-                                        auth.baseUri("/api/v1/oauth2/authorization")  // initiation path
-                                )
-                                .redirectionEndpoint(redir ->
-                                        redir.baseUri("/api/v1/login/oauth2/code/*")  // callback path
-                                )
-                                .failureHandler(oAuth2FailureHandler)
-                                .successHandler(oAuth2SuccessHandler))
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+
+        if (clientRegistrationRepository.getIfAvailable() != null) {
+            http.oauth2Login(oAuthConfig ->
+                    oAuthConfig
+                            .authorizationEndpoint(auth ->
+                                    auth.baseUri("/api/v1/oauth2/authorization")  // initiation path
+                            )
+                            .redirectionEndpoint(redir ->
+                                    redir.baseUri("/api/v1/login/oauth2/code/*")  // callback path
+                            )
+                            .failureHandler(oAuth2FailureHandler)
+                            .successHandler(oAuth2SuccessHandler));
+        }
 
         return http.build();
     }
