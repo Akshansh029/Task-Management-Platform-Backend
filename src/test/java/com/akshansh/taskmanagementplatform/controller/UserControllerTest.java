@@ -20,8 +20,11 @@ import org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAu
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -52,7 +55,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 )
 @AutoConfigureMockMvc(addFilters = false)
+@Import(UserControllerTest.MethodSecurityTestConfig.class)
 class UserControllerTest {
+
+    @Configuration
+    @EnableMethodSecurity
+    static class MethodSecurityTestConfig {
+    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -168,6 +177,25 @@ class UserControllerTest {
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.name").value("John Doe"))
                     .andExpect(jsonPath("$.email").value("johndoe1234@gmail.com"));
+        }
+
+        @Test
+        @DisplayName("Create User should return 403 FORBIDDEN when user is not admin")
+        @WithMockUser(username = "viewer", authorities = {"VIEWER"})
+        void createUser_shouldReturn403_whenUserIsNotAdmin() throws Exception {
+            CreateUserRequest request = CreateUserRequest.builder()
+                    .name("John Doe")
+                    .email("johndoe1234@gmail.com")
+                    .password("jd123456")
+                    .role(UserRole.MEMBER)
+                    .build();
+
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isForbidden());
+
+            verify(userService, never()).createUser(any(CreateUserRequest.class));
         }
 
         @Test
