@@ -47,6 +47,7 @@ class UserRepositoryTest {
         // assert
         Assertions.assertThat(retrievedUser).isNotNull();
         Assertions.assertThat(retrievedUser.getName()).isEqualTo(savedUser.getName());
+        Assertions.assertThat(retrievedUser.getRole()).isEqualTo(savedUser.getRole());
     }
 
     @Test
@@ -61,5 +62,12 @@ class UserRepositoryTest {
                 .build();
         entityManager.persist(newUser);
 
+        User createdUser = userRepository.save(newUser);
+
+        Assertions.assertThat(createdUser).isNotNull();
+        Assertions.assertThat(createdUser.getName()).isEqualTo(newUser.getName());
+        Assertions.assertThat(createdUser.getRole()).isEqualTo(newUser.getRole());
     }
+
+
 }
