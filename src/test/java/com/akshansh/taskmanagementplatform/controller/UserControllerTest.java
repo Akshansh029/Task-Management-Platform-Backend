@@ -9,24 +9,23 @@ import com.akshansh.taskmanagementplatform.entity.UserRole;
 import com.akshansh.taskmanagementplatform.exception.ForbiddenException;
 import com.akshansh.taskmanagementplatform.exception.ResourceNotFoundException;
 import com.akshansh.taskmanagementplatform.exception.UserAlreadyExistsException;
-import com.akshansh.taskmanagementplatform.filter.JwtAuthFilter;
-import com.akshansh.taskmanagementplatform.security.WithMockUserPrincipal;
 import com.akshansh.taskmanagementplatform.service.UserService;
-import com.akshansh.taskmanagementplatform.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientAutoConfiguration;
+import org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
@@ -40,11 +39,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
+@WebMvcTest(
+        value = UserController.class,
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = com.akshansh.taskmanagementplatform.filter.JwtAuthFilter.class
+        ),
+        excludeAutoConfiguration = {
+                OAuth2ClientAutoConfiguration.class,
+                OAuth2ClientWebSecurityAutoConfiguration.class
+        }
+
+)
+@AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
 
     @Autowired
-    private WebApplicationContext context;
+    private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -52,16 +63,6 @@ class UserControllerTest {
     @MockitoBean
     private UserService userService;
 
-    @MockitoBean
-    private JwtAuthFilter jwtAuthFilter;
-
-    @MockitoBean
-    private JwtUtil jwtUtil;
-
-    @MockitoBean
-    private HttpSecurity httpSecurity;
-
-    private MockMvc mockMvc;
     private UserProfileResponse createResponse;
     private UserProfileResponse updateResponse;
     private ActiveUserResponse activeUserResponse;
@@ -69,13 +70,6 @@ class UserControllerTest {
 
     @BeforeEach
     void setup() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)       // uses full Spring context
-                .defaultRequest(
-                        get("/").servletPath("")        // clears any default
-                )
-                .build();
-
         this.createResponse = UserProfileResponse.builder()
                 .id(1L)
                 .name("John Doe")
@@ -128,7 +122,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Get User Profile should return 200 OK when Id exists")
-        @WithMockUser
+        @WithMockUser(username = "member", authorities = {"MEMBER"})
         void getUserProfileById_shouldReturn200_whenIdExists() throws Exception {
             when(userService.getUserProfileById(1L)).thenReturn(createResponse);
 
@@ -140,7 +134,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Get User Profile should return 404 when Id does not exist")
-        @WithMockUser
+        @WithMockUser(username = "member", authorities = {"MEMBER"})
         void getUserProfileById_shouldReturn404_whenIdDoesNotExist() throws Exception {
             when(userService.getUserProfileById(99L))
                     .thenThrow(new ResourceNotFoundException("User not found"));
@@ -156,6 +150,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Create User should return 201 CREATED when request data is valid")
+        @WithMockUser(username = "admin", authorities = {"ADMIN"})
         void createUser_shouldReturn201_whenRequestIsValid() throws Exception {
             CreateUserRequest request = CreateUserRequest.builder()
                     .name("John Doe")
@@ -164,7 +159,7 @@ class UserControllerTest {
                     .role(UserRole.MEMBER)
                     .build();
 
-            when(userService.createUser(request)).thenReturn(createResponse);
+            when(userService.createUser(any(CreateUserRequest.class))).thenReturn(createResponse);
 
             mockMvc.perform(post("/users")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -177,6 +172,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Create User should return 400 INVALID when request data is invalid")
+        @WithMockUser(username = "admin", authorities = {"ADMIN"})
         void createUser_shouldReturn400_whenRequestIsInvalid() throws Exception{
             CreateUserRequest request = CreateUserRequest.builder()
                     .name("Ja")
@@ -186,7 +182,7 @@ class UserControllerTest {
                     .build();
 
 
-            when(userService.createUser(request)).thenReturn(createResponse);
+            when(userService.createUser(any(CreateUserRequest.class))).thenReturn(createResponse);
 
             mockMvc.perform(post("/users")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -202,7 +198,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Update User should return 200 when request data is valid")
-        @WithMockUserPrincipal(id = 1L, name = "John Doe", email = "johndoe1234@gmail.com", role = "MEMBER")
+        @WithMockUser(username = "member", authorities = {"MEMBER"})
         void updateUser_shouldReturn200_whenRequestIsValid() throws Exception {
             UpdateUserRequest request = UpdateUserRequest.builder()
                     .name("John Doe Sr")
@@ -222,10 +218,10 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Update User should return 400 when request data is invalid")
-        @WithMockUserPrincipal(id = 1L, name = "John Doe", email = "johndoe1234@gmail.com", role = "MEMBER")
+        @WithMockUser(username = "member", authorities = {"MEMBER"})
         void updateUser_shouldReturn400_whenRequestIsInvalid() throws Exception {
             UpdateUserRequest request = UpdateUserRequest.builder()
-                    .name("Ja")                      // too short — triggers @Valid
+                    .name("Ja")
                     .email("johndoesr1234@gmail.com")
                     .build();
 
@@ -237,15 +233,15 @@ class UserControllerTest {
         }
 
         @Test
-        @WithMockUserPrincipal(id = 1L)  // logged in as user 1
         @DisplayName("Should return 403 when user tries to update another user")
+        @WithMockUser(username = "member", authorities = {"MEMBER"})
         void updateUser_shouldReturn403_whenUserUpdatesOtherProfile() throws Exception {
             UpdateUserRequest request = UpdateUserRequest.builder()
                     .name("Hacker")
                     .email("hacker@gmail.com")
                     .build();
 
-            when(userService.updateUser(2L, request))
+            when(userService.updateUser(eq(2L), any(UpdateUserRequest.class)))
                     .thenThrow(new ForbiddenException("Only admins or user themselves can update"));
 
             mockMvc.perform(put("/users/2")
@@ -261,6 +257,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Update user role should return 200 OK when request is valid")
+        @WithMockUser(username = "admin", authorities = {"ADMIN"})
         void updateUserRole_shouldReturn200_whenRequestIsValid() throws Exception {
             UpdateUserRoleRequest request = UpdateUserRoleRequest.builder()
                     .role(UserRole.MEMBER)
@@ -278,6 +275,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Update user role should return 404 NOT FOUND when user does not exists")
+        @WithMockUser(username = "admin", authorities = {"ADMIN"})
         void updateUserRole_shouldReturn404_whenUserDoesNotExists() throws Exception {
             UpdateUserRoleRequest request = UpdateUserRoleRequest.builder()
                     .role(UserRole.MEMBER)
@@ -300,6 +298,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Delete User should return 204")
+        @WithMockUser(username = "admin", authorities = {"ADMIN"})
         void deleteUser_shouldReturn204_whenUserExists() throws Exception{
             doNothing().when(userService).deleteUser(1L);
 
@@ -314,6 +313,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Get Active User Details should return 200 when user is authenticated")
+        @WithMockUser(username = "member", authorities = {"MEMBER"})
         void getActiveUserDetails_shouldReturn200_whenUserIsAuthenticated() throws Exception {
             when(userService.getActiveUserDetails()).thenReturn(activeUserResponse);
 
@@ -346,6 +346,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Bulk User Creation should return 201 CREATED when request is valid")
+        @WithMockUser(username = "admin", authorities = {"ADMIN"})
         void bulkUserCreation_shouldReturn201_whenUsersListIsValid() throws Exception{
             doNothing().when(userService).bulkCreateUsers(bulkCreationRequest);
 
@@ -357,6 +358,7 @@ class UserControllerTest {
 
         @Test
         @DisplayName("Bulk User Creation should return 400 BAD_REQUEST when request is invalid")
+        @WithMockUser(username = "admin", authorities = {"ADMIN"})
         void bulkUserCreation_shouldReturn400_whenUsersListIsInvalid() throws Exception{
             doThrow(new UserAlreadyExistsException("User already exists")).when(userService).bulkCreateUsers(bulkCreationRequest);
 
