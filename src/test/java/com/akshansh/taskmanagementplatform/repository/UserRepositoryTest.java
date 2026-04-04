@@ -1,10 +1,10 @@
 package com.akshansh.taskmanagementplatform.repository;
 
+import com.akshansh.taskmanagementplatform.dto.response.ActiveUserResponse;
 import com.akshansh.taskmanagementplatform.dto.response.UserProfileResponse;
 import com.akshansh.taskmanagementplatform.entity.AuthProvider;
 import com.akshansh.taskmanagementplatform.entity.User;
 import com.akshansh.taskmanagementplatform.entity.UserRole;
-import org.assertj.core.api.Assert;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @DataJpaTest
 class UserRepositoryTest {
@@ -26,11 +28,6 @@ class UserRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
-
-    @BeforeEach
-    void setup() {
-
-    }
 
     @Test
     @DisplayName("Find User Profile By Id Test")
@@ -147,5 +144,100 @@ class UserRepositoryTest {
 
         Assertions.assertThat(updatedUser).isNotNull();
         Assertions.assertThat(updatedUser.getName()).isEqualTo(newName);
+    }
+
+    @Test
+    @DisplayName("Find By Email Test")
+    void findByEmail_thenReturnUser() {
+        User newUser = User.builder()
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .createdAt(LocalDateTime.now())
+                .provider(AuthProvider.GOOGLE)
+                .build();
+        entityManager.persist(newUser);
+
+        String email = "johndoe1234@gmail.com";
+        User retrievedUser = userRepository.findByEmail(email);
+
+        Assertions.assertThat(retrievedUser).isNotNull();
+        Assertions.assertThat(retrievedUser.getEmail()).isEqualTo(newUser.getEmail());
+    }
+
+    @Test
+    @DisplayName("Save All Test")
+    void saveAll_thenReturnListOfUsers() {
+        User user1 = User.builder()
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .createdAt(LocalDateTime.now())
+                .provider(AuthProvider.GOOGLE)
+                .build();
+        User user2 = User.builder()
+                .name("Steve Smith")
+                .email("stevesmith1234@gmail.com")
+                .role(UserRole.VIEWER)
+                .createdAt(LocalDateTime.now())
+                .provider(AuthProvider.LOCAL)
+                .build();
+        List<User> newUsers = List.of(user1, user2);
+
+        List<User> savedUsers = userRepository.saveAll(newUsers);
+
+        Assertions.assertThat(savedUsers).isNotNull();
+        Assertions.assertThat(savedUsers.size()).isEqualTo(newUsers.size());
+    }
+
+    @Test
+    @DisplayName("Find By Id Test")
+    void findById_thenReturnOptional() {
+        User savedUser = User.builder()
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .createdAt(LocalDateTime.now())
+                .provider(AuthProvider.GOOGLE)
+                .build();
+        entityManager.persist(savedUser);
+
+        Optional<User> retrievedUser = userRepository.findById(savedUser.getId());
+        Assertions.assertThat(retrievedUser.get().getEmail()).isEqualTo(savedUser.getEmail());
+    }
+
+    @Test
+    @DisplayName("Delete By Id Test")
+    void deleteById_thenSuccess() {
+        User newUser = User.builder()
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .createdAt(LocalDateTime.now())
+                .provider(AuthProvider.GOOGLE)
+                .build();
+        entityManager.persist(newUser);
+
+        userRepository.deleteById(newUser.getId());
+        Assertions.assertThat(entityManager.find(User.class, newUser.getId())).isNull();
+    }
+
+    @Test
+    @DisplayName("Find Active User Details")
+    void findActiveUserDetails_thenReturnActiveUserResponse() {
+        User activeUser = User.builder()
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .createdAt(LocalDateTime.now())
+                .provider(AuthProvider.GOOGLE)
+                .build();
+        entityManager.persist(activeUser);
+
+        ActiveUserResponse userDetails = userRepository.findActiveUserDetails(activeUser.getId());
+
+        Assertions.assertThat(userDetails).isNotNull();
+        Assertions.assertThat(userDetails.getEmail()).isEqualTo(activeUser.getEmail());
+        Assertions.assertThat(userDetails.getRole()).isEqualTo(activeUser.getRole());
     }
 }
