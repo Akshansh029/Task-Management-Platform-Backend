@@ -129,5 +129,23 @@ class UserRepositoryTest {
         Assertions.assertThat(createdUser.getRole()).isEqualTo(newUser.getRole());
     }
 
+    @Test
+    @DisplayName("Update User Test")
+    void updateUser_thenReturnUpdatedUser() {
+        User newUser = User.builder()
+                .name("John Doe")
+                .email("johndoe1234@gmail.com")
+                .role(UserRole.MEMBER)
+                .createdAt(LocalDateTime.now())
+                .provider(AuthProvider.GOOGLE)
+                .build();
+        entityManager.persist(newUser);
 
+        String newName = "John Doe Sr";
+        newUser.setName(newName);
+        User updatedUser = userRepository.save(newUser);
+
+        Assertions.assertThat(updatedUser).isNotNull();
+        Assertions.assertThat(updatedUser.getName()).isEqualTo(newName);
+    }
 }
